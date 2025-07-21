@@ -13,7 +13,10 @@
       </div>
 
       <div v-else-if="teacherOptions.length === 1" class="text-h6 text-center">
-        Olá, {{ selectedTeacher?.nome }}
+        Olá, {{ selectedTeacher?.name }}
+        <div v-if="selectedTeacher?.holderName !== null" class="text-subtitle2 text-primary">
+          Você está substituindo {{ selectedTeacher?.holderName }}
+        </div>
       </div>
 
       <div class="row justify-center q-gutter-lg q-mt-md">
@@ -45,4 +48,7 @@ const {
   goTo,
   cards
 } = useHomePage();
+
+console.log(teacherOptions);
+
 </script>

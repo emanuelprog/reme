@@ -1,14 +1,12 @@
 export interface Teacher {
   cpf : string
-  nome: string
-  vinculo: number
-  numero: string 
-  ativo: string
-  professor_substitutoid: number
-  nome_substituido: string
-  cpf_substituto: string
-  coordenador: boolean
-  substitutoExisteErgon: boolean
+  name: string
+  employmentLink: number
+  enrollment: string 
+  substituteTeacherId: number
+  holderName: string
+  holderCpf: string
+  isCoordinator: boolean
   }
   
   export interface TeacherOption {

@@ -8,7 +8,7 @@ const API_URL = import.meta.env.VITE_API;
 
 export async function initTeacherData(token: string): Promise<boolean> {
   try {
-    const response = await fetch(`${API_URL}/acesso/login`, {
+    const response = await fetch(`${API_URL}/auth`, {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${token}`,
@@ -25,10 +25,13 @@ export async function initTeacherData(token: string): Promise<boolean> {
     }
 
     const raw = await response.json();
-    const data: Teacher[] = Array.isArray(raw) ? raw : [raw];
+
+    console.log(raw);
+    
+    const data: Teacher[] = Array.isArray(raw.data) ? raw.data : [raw.data];
 
     teacherOptions.value = data.map((t: Teacher): TeacherOption => ({
-      label: t.nome_substituido === t.nome ? 'MEU HORÁRIO' : t.nome_substituido,
+      label: t.holderName === t.name ? 'MEU HORÁRIO' : t.holderName,
       value: t
     }));
 
