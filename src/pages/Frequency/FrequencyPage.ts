@@ -2,7 +2,6 @@ import { ref, computed, watch } from 'vue';
 import type { QTableColumn } from 'quasar';
 import { fetchSchools, fetchTeachingType, fetchYears } from 'src/services/filters/filtersService';
 import type { TeachingType, School, Year } from 'src/types/FilterOption';
-import { useTeacherStore } from 'src/stores/teacherStore';
 import { useFilterStore } from 'src/stores/filterStore';
 
 interface FilterModel {
@@ -107,26 +106,21 @@ const paginatedCards = computed(() => {
   return rows.value.slice(start, end);
 });
 
-const teacherStore = useTeacherStore();
 const filterStore = useFilterStore();
 
 async function loadSelectOptions() {
   const teachingTypeData = await fetchTeachingType();
   selectFields.value.teachingType.options = Array.isArray(teachingTypeData.data) ? teachingTypeData.data : [];
 
-  if (teacherStore.selectedTeacher) {
-    const schoolsData = await fetchSchools(teacherStore.selectedTeacher);
-    selectFields.value.school.options = Array.isArray(schoolsData.data) ? schoolsData.data : [];
-  }
+  const schoolsData = await fetchSchools();
+  selectFields.value.school.options = Array.isArray(schoolsData.data) ? schoolsData.data : [];
 }
 
 watch([() => filters.value.teachingType, () => filters.value.school], async ([teachingType, school]) => {
   filterStore.setSelections(teachingType, school, null);
   
-  if (teachingType?.id && school?.sector && teacherStore.selectedTeacher) {
-    const yearData = await fetchYears(teachingType, school, teacherStore.selectedTeacher);
-    selectFields.value.year.options = Array.isArray(yearData) ? yearData : [];
-  }
+  const yearData = await fetchYears();
+  selectFields.value.year.options = Array.isArray(yearData) ? yearData : [];
 });
 
 function clearFilters() {

@@ -1,29 +1,32 @@
 import { api } from 'boot/axios';
-import type { School, TeachingType } from 'src/types/FilterOption';
-import type { Teacher } from 'src/types/Teacher';
+import { useFilterStore } from 'src/stores/filterStore';
+import { useTeacherStore } from 'src/stores/teacherStore';
+
+const filterStore = useFilterStore();
+const teacherStore = useTeacherStore();
 
 export async function fetchTeachingType() {
     const response = await api.get('/filter/teachingType');
     return response.data;
   }
   
-  export async function fetchSchools(teacher: Teacher) {
+  export async function fetchSchools() {
     const response = await api.get('/filter/school', {
       params: {
-        enrollment: teacher.enrollment,
-        isCoordinator: teacher.isCoordinator
+        enrollment: teacherStore.selectedTeacher?.enrollment,
+        isCoordinator: teacherStore.selectedTeacher?.isCoordinator
       }
     });
 
     return response.data;
   }
   
-  export async function fetchYears(teachingType: TeachingType, school: School, teacher: Teacher) {
+  export async function fetchYears() {
     const response = await api.get('/filter/year', {
       params: {
-        teachingTypeId: teachingType.id,
-        sector: school.sector,
-        enrollment: teacher.enrollment
+        teachingTypeId: filterStore.selectedTeachingType?.id,
+        sector: filterStore.selectedSchool?.sector,
+        enrollment: teacherStore.selectedTeacher?.enrollment
       }
     });
 
