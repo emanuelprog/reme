@@ -32,7 +32,7 @@
                         </q-card-section>
                         <q-separator />
                         <q-card-section class="q-pt-md">
-                            <div><strong>Etapa:</strong> {{ diario.stage }}</div>
+                            <div><strong>Etapa:</strong> {{ diario.teachingType }}</div>
                             <div><strong>Escola:</strong> {{ diario.school }}</div>
                             <div><strong>Turma:</strong> {{ diario.class }}</div>
                             <div><strong>Bimestre:</strong> {{ diario.bimester }}</div>

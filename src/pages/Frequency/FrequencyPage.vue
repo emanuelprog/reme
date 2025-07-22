@@ -5,9 +5,9 @@
 
             <div class="row q-col-gutter-md items-center justify-center" style="max-width: 1200px; width: 100%">
                 <q-select v-for="(field, key) in selectFields" :key="key" v-model="filters[key]"
-                    :options="field.options" :label="field.label" filled emit-value map-options
-                    :error="validate && !filters[key]" :error-message="`O campo ${field.label} é obrigatório`"
-                    class="col-12 col-sm-6 col-md-3" />
+                    :options="field.options" :option-label="field.optionLabel" :option-value="field.optionValue"
+                    :label="field.label" filled :error="validate && !filters[key]"
+                    :error-message="`O campo ${field.label} é obrigatório`" class="col-12 col-sm-6 col-md-3" />
             </div>
 
             <div class="row q-gutter-md justify-center q-my-lg">
@@ -32,7 +32,7 @@
                         </q-card-section>
                         <q-separator />
                         <q-card-section class="q-pt-md">
-                            <div><strong>Etapa:</strong> {{ diario.stage }}</div>
+                            <div><strong>Etapa:</strong> {{ diario.teachingType }}</div>
                             <div><strong>Escola:</strong> {{ diario.school }}</div>
                             <div><strong>Turma:</strong> {{ diario.class }}</div>
                             <div><strong>Bimestre:</strong> {{ diario.bimester }}</div>
@@ -54,6 +54,7 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted } from 'vue';
 import { useFrequencyPage } from './FrequencyPage';
 import './FrequencyPage.scss';
 
@@ -69,6 +70,9 @@ const {
     paginatedCards,
     onSearch,
     onCreate,
-    clearFilters
+    clearFilters,
+    loadSelectOptions
 } = useFrequencyPage();
+
+onMounted(loadSelectOptions);
 </script>

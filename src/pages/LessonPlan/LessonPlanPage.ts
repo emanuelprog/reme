@@ -2,7 +2,7 @@ import { ref, computed } from 'vue';
 import type { QTableColumn } from 'quasar';
 
 interface FilterModel {
-  stage: string | null;
+  teachingType: string | null;
   school: string | null;
   year: number | null;
   shift: string | null;
@@ -13,7 +13,7 @@ interface FilterModel {
 }
 
 const initialFilters: FilterModel = {
-  stage: null,
+  teachingType: null,
   school: null,
   year: null,
   shift: null,
@@ -24,7 +24,7 @@ const initialFilters: FilterModel = {
 };
 
 const selectFields = {
-  stage: { label: 'Etapa da Ed. Básica / Modalidade', options: [
+  teachingType: { label: 'Etapa da Ed. Básica / Modalidade', options: [
     { label: 'Ensino Fundamental', value: 'fundamental' },
     { label: 'Ensino Médio', value: 'medio' },
     { label: 'EJA', value: 'eja' }
@@ -70,7 +70,7 @@ const selectFields = {
 const rows = ref([
   {
     id: 1,
-    stage: 'Ensino Fundamental',
+    teachingType: 'Ensino Fundamental',
     school: 'Escola Municipal A',
     year: 2024,
     shift: 'Matutino',
@@ -81,7 +81,7 @@ const rows = ref([
   },
   {
     id: 2,
-    stage: 'Ensino Médio',
+    teachingType: 'Ensino Médio',
     school: 'Escola Estadual C',
     year: 2025,
     shift: 'Noturno',
@@ -93,7 +93,7 @@ const rows = ref([
 ]);
 
 const columns: QTableColumn[] = [
-  { name: 'stage', label: 'Etapa', field: 'stage', align: 'left', sortable: true },
+  { name: 'teachingType', label: 'Etapa', field: 'teachingType', align: 'left', sortable: true },
   { name: 'school', label: 'Escola', field: 'school', align: 'left', sortable: true },
   { name: 'year', label: 'Ano', field: 'year', align: 'left', sortable: true },
   { name: 'shift', label: 'Turno', field: 'shift', align: 'left', sortable: true },

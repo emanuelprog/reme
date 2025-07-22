@@ -9,13 +9,14 @@
             : 'Selecione o professor(a) que deseja substituir.' }}
         </div>
         <q-select filled v-model="selectedOption" :options="teacherOptions" option-label="label" option-value="value"
-          label="Professor(a)" @update:model-value="onTeacherSelect" />
+          label="Professor(a)" @update:model-value="onTeacherSelect" :error="selectError"
+          :error-message="selectErrorMessage" />
       </div>
 
       <div v-else-if="teacherOptions.length === 1" class="text-h6 text-center">
-        Olá, {{ selectedTeacher?.name }}
-        <div v-if="selectedTeacher?.holderName !== null" class="text-subtitle2 text-primary">
-          Você está substituindo {{ selectedTeacher?.holderName }}
+        Olá, {{ teacherStore.selectedTeacher?.name }}
+        <div v-if="teacherStore.selectedTeacher?.holderName !== null" class="text-subtitle2 text-primary">
+          Você está substituindo {{ teacherStore.selectedTeacher?.holderName }}
         </div>
       </div>
 
@@ -42,13 +43,12 @@ import './HomePage.scss';
 const {
   teacherOptions,
   selectedOption,
-  selectedTeacher,
+  teacherStore,
   hasOwnSchedule,
   onTeacherSelect,
   goTo,
-  cards
+  cards,
+  selectError,
+  selectErrorMessage
 } = useHomePage();
-
-console.log(teacherOptions);
-
 </script>

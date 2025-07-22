@@ -1,26 +1,20 @@
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
-import { useTeachers } from 'src/services/auth/teacherService';
+import { useTeachers } from 'src/services/auth/authService';
 import type { TeacherOption } from 'src/types/Teacher';
+import { useTeacherStore } from 'src/stores/teacherStore';
+
+const teacherStore = useTeacherStore();
 
 export function useHomePage() {
   const router = useRouter();
-  const { teacherOptions, selectTeacher, selectedTeacher } = useTeachers();
+  const { teacherOptions, selectTeacher } = useTeachers();
 
   const selectedOption = ref<TeacherOption | null>(null);
 
   const hasOwnSchedule = computed(() =>
     teacherOptions.value.some((t: { label: string }) => t.label === 'MEU HORÁRIO')
   );
-
-  function onTeacherSelect(option: TeacherOption) {
-    selectedOption.value = option;
-    selectTeacher(option.value);
-  }
-
-  async function goTo(path: string) {
-    await router.push(`/${path}`);
-  }
 
   const cards = [
     {
@@ -43,13 +37,47 @@ export function useHomePage() {
     }
   ];
 
+  const selectError = ref(false);
+  const selectErrorMessage = ref('');
+
+  function onTeacherSelect(option: TeacherOption) {
+    selectedOption.value = option;
+    selectTeacher(option.value);
+
+    selectError.value = false;
+    selectErrorMessage.value = '';
+  }
+
+  async function goTo(path: string) {
+    if (teacherOptions.value.length > 1 && !selectedOption.value) {
+      selectError.value = true;
+      selectErrorMessage.value = 'O campo Professor(a) é obrigatório';
+      return;
+    }
+
+    selectError.value = false;
+    selectErrorMessage.value = '';
+    await router.push(`/${path}`);
+  }
+
+  if (teacherStore.selectedTeacher) {
+    selectedOption.value = {
+      label: teacherStore.selectedTeacher.holderName,
+      value: teacherStore.selectedTeacher
+    };
+  } else {
+    selectedOption.value = null;
+  }
+
   return {
     teacherOptions,
     selectedOption,
-    selectedTeacher,
+    teacherStore,
     hasOwnSchedule,
     onTeacherSelect,
     goTo,
-    cards
+    cards,
+    selectError,
+    selectErrorMessage
   };
 }

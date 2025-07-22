@@ -1,6 +1,7 @@
 import { boot } from 'quasar/wrappers';
 import keycloak from 'src/services/auth/keycloakService';
-import { initTeacherData } from 'src/services/auth/teacherService';
+import { initTeacherData } from 'src/services/auth/authService';
+import { api } from 'boot/axios';
 
 export default boot(async ({ router }) => {
   try {
@@ -15,7 +16,9 @@ export default boot(async ({ router }) => {
         return;
       }
 
-      const isValid = await initTeacherData(token);
+      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+      const isValid = await initTeacherData();
 
       if (isValid) {
         await router.replace('/home');

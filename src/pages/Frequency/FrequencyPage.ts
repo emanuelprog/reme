@@ -1,76 +1,67 @@
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import type { QTableColumn } from 'quasar';
+import { fetchSchools, fetchTeachingType, fetchYears } from 'src/services/filters/filtersService';
+import type { TeachingType, School, Year } from 'src/types/FilterOption';
+import { useTeacherStore } from 'src/stores/teacherStore';
+import { useFilterStore } from 'src/stores/filterStore';
 
 interface FilterModel {
-  stage: string | null;
-  school: string | null;
+  teachingType: TeachingType | null;
+  school: School | null;
   year: number | null;
-  shift: string | null;
-  group: number | null;
-  discipline: string | null;
-  class: string | null;
-  bimester: number | null;
+  // shift: string | null;
+  // group: number | null;
+  // discipline: string | null;
+  // class: string | null;
+  // bimester: number | null;
 }
 
 const initialFilters: FilterModel = {
-  stage: null,
+  teachingType: null,
   school: null,
   year: null,
-  shift: null,
-  group: null,
-  discipline: null,
-  class: null,
-  bimester: null
+  // shift: null,
+  // group: null,
+  // discipline: null,
+  // class: null,
+  // bimester: null
 };
 
-const selectFields = {
-  stage: { label: 'Etapa da Ed. Básica / Modalidade', options: [
-    { label: 'Ensino Fundamental', value: 'fundamental' },
-    { label: 'Ensino Médio', value: 'medio' },
-    { label: 'EJA', value: 'eja' }
-  ]},
-  school: { label: 'Unidade Escolar', options: [
-    { label: 'Escola Municipal A', value: 'a' },
-    { label: 'Escola Municipal B', value: 'b' },
-    { label: 'Escola Estadual C', value: 'c' }
-  ]},
-  year: { label: 'Ano Referência', options: [
-    { label: '2023', value: 2023 },
-    { label: '2024', value: 2024 },
-    { label: '2025', value: 2025 }
-  ]},
-  shift: { label: 'Turno', options: [
-    { label: 'Matutino', value: 'manha' },
-    { label: 'Vespertino', value: 'tarde' },
-    { label: 'Noturno', value: 'noite' }
-  ]},
-  group: { label: 'Grupo / Ano Escolar', options: [
-    { label: '1º Ano', value: 1 },
-    { label: '2º Ano', value: 2 },
-    { label: '3º Ano', value: 3 }
-  ]},
-  discipline: { label: 'Professor / Componente Curricular', options: [
-    { label: 'Matemática', value: 'Matemática' },
-    { label: 'Português', value: 'Português' },
-    { label: 'Ciências', value: 'Ciências' }
-  ]},
-  class: { label: 'Turma', options: [
-    { label: 'Turma A', value: 'a' },
-    { label: 'Turma B', value: 'b' },
-    { label: 'Turma C', value: 'c' }
-  ]},
-  bimester: { label: 'Bimestre', options: [
-    { label: '1º Bimestre', value: 1 },
-    { label: '2º Bimestre', value: 2 },
-    { label: '3º Bimestre', value: 3 },
-    { label: '4º Bimestre', value: 4 }
-  ]}
-};
+const selectFields = ref({
+  teachingType: {
+    label: 'Etapa da Ed. Básica / Modalidade',
+    optionLabel: 'description',
+    optionValue: 'id',
+    options: [] as TeachingType[]
+  },
+  school: {
+    label: 'Unidade Escolar',
+    optionLabel: 'sectorName',
+    optionValue: 'sector',
+    options: [] as School[]
+  },
+  year: { 
+    label: 'Ano Referência',
+    optionLabel: 'value',
+    optionValue: 'value',
+    options: [] as Year[] 
+  },
+  // shift: {
+  //   label: 'Turno',
+  //   optionLabel: 'description',
+  //   optionValue: 'id',
+  //   options: [] as Shift[]
+  // },
+  // group: { label: 'Grupo / Ano Escolar', options: [] as SelectOption[] },
+  // discipline: { label: 'Professor / Componente Curricular', options: [] as SelectOption[] },
+  // class: { label: 'Turma', options: [] as SelectOption[] },
+  // bimester: { label: 'Bimestre', options: [] as SelectOption[] }
+});
 
 const rows = ref([
   {
     id: 1,
-    stage: 'Ensino Fundamental',
+    teachingType: 'Ensino Fundamental',
     school: 'Escola Municipal A',
     year: 2024,
     shift: 'Matutino',
@@ -81,7 +72,7 @@ const rows = ref([
   },
   {
     id: 2,
-    stage: 'Ensino Médio',
+    teachingType: 'Ensino Médio',
     school: 'Escola Estadual C',
     year: 2025,
     shift: 'Noturno',
@@ -93,7 +84,7 @@ const rows = ref([
 ]);
 
 const columns: QTableColumn[] = [
-  { name: 'stage', label: 'Etapa', field: 'stage', align: 'left', sortable: true },
+  { name: 'teachingType', label: 'Etapa', field: 'teachingType', align: 'left', sortable: true },
   { name: 'school', label: 'Escola', field: 'school', align: 'left', sortable: true },
   { name: 'year', label: 'Ano', field: 'year', align: 'left', sortable: true },
   { name: 'shift', label: 'Turno', field: 'shift', align: 'left', sortable: true },
@@ -116,6 +107,28 @@ const paginatedCards = computed(() => {
   return rows.value.slice(start, end);
 });
 
+const teacherStore = useTeacherStore();
+const filterStore = useFilterStore();
+
+async function loadSelectOptions() {
+  const teachingTypeData = await fetchTeachingType();
+  selectFields.value.teachingType.options = Array.isArray(teachingTypeData.data) ? teachingTypeData.data : [];
+
+  if (teacherStore.selectedTeacher) {
+    const schoolsData = await fetchSchools(teacherStore.selectedTeacher);
+    selectFields.value.school.options = Array.isArray(schoolsData.data) ? schoolsData.data : [];
+  }
+}
+
+watch([() => filters.value.teachingType, () => filters.value.school], async ([teachingType, school]) => {
+  filterStore.setSelections(teachingType, school, null);
+  
+  if (teachingType?.id && school?.sector && teacherStore.selectedTeacher) {
+    const yearData = await fetchYears(teachingType, school, teacherStore.selectedTeacher);
+    selectFields.value.year.options = Array.isArray(yearData) ? yearData : [];
+  }
+});
+
 function clearFilters() {
   filters.value = { ...initialFilters };
   validate.value = false;
@@ -134,7 +147,7 @@ function onSearch() {
 
 function onCreate() {
   validate.value = true;
-  const filled = Object.values(filters.value).every(val => val !== null && val !== '');
+  const filled = Object.values(filters.value).every(val => val !== null && val !== null);
   if (filled) alert('Diário criado com sucesso!');
 }
 
@@ -151,6 +164,7 @@ export function useFrequencyPage() {
     paginatedCards,
     onSearch,
     onCreate,
-    clearFilters
+    clearFilters,
+    loadSelectOptions
   };
 }
