@@ -18,6 +18,7 @@ export interface Shift {
   id: number;
   description: string;
   situation: boolean;
+  isIntegral: boolean;
 }
 
 export interface Group {

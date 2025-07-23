@@ -6,7 +6,7 @@
             <div class="row q-col-gutter-md items-center justify-center" style="max-width: 1200px; width: 100%">
                 <q-select v-for="(field, key) in selectFields" :key="key" v-model="filters[key]"
                     :options="field.options" :option-label="field.optionLabel" :option-value="field.optionValue"
-                    :label="field.label" filled :error="validate && !filters[key]"
+                    :label="field.label" filled :error="validate && isFieldRequired(key) && !filters[key]"
                     :error-message="`O campo ${field.label} é obrigatório`" class="col-12 col-sm-6 col-md-3" />
             </div>
 
@@ -68,6 +68,7 @@ const {
     columns,
     paginationCards,
     paginatedCards,
+    isFieldRequired,
     onSearch,
     onCreate,
     clearFilters,

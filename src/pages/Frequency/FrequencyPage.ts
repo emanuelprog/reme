@@ -108,9 +108,26 @@ const paginatedCards = computed(() => {
 const filterStore = useFilterStore();
 const teacherStore = useTeacherStore();
 
+const validationContext = ref<'search' | 'create' | null>(null);
+
+function isFieldRequired(fieldKey: string): boolean {
+  if (validationContext.value === 'search') {
+    return fieldKey === 'school';
+  }
+  if (validationContext.value === 'create') {
+    return true;
+  }
+  return false;
+}
+
 async function loadSelectOptions() {
-  const teachingTypeData = await fetchTeachingType();
-  selectFields.value.teachingType.options = Array.isArray(teachingTypeData.data) ? teachingTypeData.data : [];
+  const [teachingTypeRes, schoolRes] = await Promise.all([
+    fetchTeachingType(),
+    fetchSchools()
+  ]);
+
+  selectFields.value.teachingType.options = Array.isArray(teachingTypeRes.data) ? teachingTypeRes.data : [];
+  selectFields.value.school.options = Array.isArray(schoolRes.data) ? schoolRes.data : [];
 }
 
 watch(
@@ -121,18 +138,8 @@ watch(
 
     filterStore.setSelections(teachingType, null, null, null, null, null, null, null);
 
-    if (teachingType?.id) {
-      void fetchSchools().then((res) => {
-        selectFields.value.school.options = Array.isArray(res.data) ? res.data : [];
-      });
-    } else {
-      selectFields.value.school.options = [];
-      selectFields.value.year.options = [];
-      selectFields.value.shift.options = [];
-      selectFields.value.group.options = [];
-      selectFields.value.discipline.options = [];
-      selectFields.value.grade.options = [];
-      selectFields.value.bimester.options = [];
+    if (!teachingType?.id) {
+      resetOptionsFrom('year');
       showTable.value = false;
     }
   }
@@ -152,12 +159,7 @@ watch(
         : [];
       });
     } else {
-      selectFields.value.year.options = [];
-      selectFields.value.shift.options = [];
-      selectFields.value.group.options = [];
-      selectFields.value.discipline.options = [];
-      selectFields.value.grade.options = [];
-      selectFields.value.bimester.options = [];
+      resetOptionsFrom('group');
       showTable.value = false;
     }
   }
@@ -176,20 +178,16 @@ watch(
 
         if (shifts.length === 1 && shifts[0].id === 4) {
           selectFields.value.shift.options = [
-            { id: 4, description: 'MATUTINO', situation: true },
-            { id: 4, description: 'VESPERTINO', situation: true },
-            { id: 4, description: 'INTEGRAL', situation: true }
+            { id: 1, description: 'MATUTINO', situation: true, isIntegral: true },
+            { id: 2, description: 'VESPERTINO', situation: true, isIntegral: true },
+            { id: 4, description: 'INTEGRAL', situation: true, isIntegral: true }
           ];
         } else {
           selectFields.value.shift.options = shifts;
         }
       });
     } else {
-      selectFields.value.shift.options = [];
-      selectFields.value.group.options = [];
-      selectFields.value.discipline.options = [];
-      selectFields.value.grade.options = [];
-      selectFields.value.bimester.options = [];
+      resetOptionsFrom('shift');
       showTable.value = false;
     }
   }
@@ -207,10 +205,7 @@ watch(
         selectFields.value.group.options = Array.isArray(res.data) ? res.data : [];
       });
     } else {
-      selectFields.value.group.options = [];
-      selectFields.value.discipline.options = [];
-      selectFields.value.grade.options = [];
-      selectFields.value.bimester.options = [];
+      resetOptionsFrom('grade');
       showTable.value = false;
     }
   }
@@ -228,9 +223,7 @@ watch(
         selectFields.value.discipline.options = Array.isArray(res.data) ? res.data : [];
       });
     } else {
-      selectFields.value.discipline.options = [];
-      selectFields.value.grade.options = [];
-      selectFields.value.bimester.options = [];
+      resetOptionsFrom('discipline');
       showTable.value = false;
     }
   }
@@ -248,8 +241,7 @@ watch(
         selectFields.value.grade.options = Array.isArray(res.data) ? res.data : [];
       });
     } else {
-      selectFields.value.grade.options = [];
-      selectFields.value.bimester.options = [];
+      resetOptionsFrom('grade');
       showTable.value = false;
     }
   }
@@ -283,20 +275,34 @@ watch(
   }
 );
 
+function resetOptionsFrom(field: keyof typeof selectFields.value) {
+  const order: (keyof FilterModel)[] = ['year', 'shift', 'group', 'discipline', 'grade', 'bimester'];
+  const index = order.indexOf(field);
+
+  order.slice(index).forEach((key) => {
+    filters.value[key] = null;
+
+    const selectKey = key as keyof typeof selectFields.value;
+    if ('options' in selectFields.value[selectKey]) {
+      (selectFields.value[selectKey].options as unknown as unknown[]).length = 0;
+    }
+  });
+}
+
 function clearFilters() {
   filters.value = { ...initialFilters };
   validate.value = false;
   showTable.value = false;
 
-  selectFields.value.school.options = [];
   selectFields.value.year.options = [];
   filterStore.setSelections(null, null, null, null, null, null, null, null);
 }
 
 async function onSearch() {
+  validationContext.value = 'search';
   validate.value = true;
 
-  if (!Object.values(filters.value).every(val => val !== null && val !== null)) return;
+  if (!filters.value.school) return;
 
   loading.value = true;
   showTable.value = false;
@@ -307,7 +313,7 @@ async function onSearch() {
       teachingTypeId: filters.value.teachingType?.id ?? null,
       sector: filters.value.school?.sector ?? null,
       year: filters.value.year?.value ?? null,
-      shiftId: filters.value.shift?.id ?? null,
+      shiftId: filters.value?.shift?.isIntegral ? 4 : filters.value.shift?.id ?? null,
       groupId: filters.value.group?.id ?? null,
       disciplineId: filters.value.discipline?.id ?? null,
       gradeId: filters.value.grade?.id ?? null,
@@ -325,8 +331,11 @@ async function onSearch() {
 }
 
 function onCreate() {
+  validationContext.value = 'create';
   validate.value = true;
+
   const filled = Object.values(filters.value).every(val => val !== null && val !== null);
+
   if (filled) alert('Diário criado com sucesso!');
 }
 
@@ -341,6 +350,7 @@ export function useFrequencyPage() {
     columns,
     paginationCards,
     paginatedCards,
+    isFieldRequired,
     onSearch,
     onCreate,
     clearFilters,
