@@ -4,7 +4,11 @@
       <q-btn dense flat round icon="home" aria-label="Home" to="/home" class="q-mr-sm" />
       <q-toolbar-title class="text-weight-bold">Portal Reme</q-toolbar-title>
       <q-space />
-      <q-btn round flat icon="account_circle">
+      <q-btn round flat>
+        <div class="row items-center no-wrap">
+          <q-icon name="account_circle" />
+          <q-icon name="arrow_drop_down" size="16px" />
+        </div>
         <q-menu>
           <q-list style="min-width: 200px">
             <q-item exact class="q-dark-fix">

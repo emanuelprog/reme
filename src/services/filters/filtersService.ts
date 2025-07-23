@@ -25,7 +25,7 @@ export async function fetchTeachingType() {
     const response = await api.get('/filter/year', {
       params: {
         teachingTypeId: filterStore.selectedTeachingType?.id,
-        sector: filterStore.selectedSchool?.sector,
+        schoolNumber: filterStore.selectedSchool?.schoolNumber,
         enrollment: teacherStore.selectedTeacher?.enrollment
       }
     });
@@ -34,26 +34,59 @@ export async function fetchTeachingType() {
   }
   
   export async function fetchShifts() {
-    const response = await api.get('/filter/shifts');
+    const response = await api.get('/filter/shift', {
+      params: {
+        teachingTypeId: filterStore.selectedTeachingType?.id,
+        schoolNumber: filterStore.selectedSchool?.schoolNumber,
+        enrollment: teacherStore.selectedTeacher?.enrollment,
+        year: filterStore.selectedYear
+      }
+    });
+
     return response.data;
   }
-  
+
   export async function fetchGroups() {
-    const response = await api.get('/filter/groups');
+    const response = await api.get('/filter/group', {
+      params: {
+        teachingTypeId: filterStore.selectedTeachingType?.id,
+        schoolNumber: filterStore.selectedSchool?.schoolNumber,
+        enrollment: teacherStore.selectedTeacher?.enrollment,
+        year: filterStore.selectedYear,
+        shiftId: filterStore.selectedShift?.id
+      }
+    });
+
     return response.data;
   }
-  
+
   export async function fetchDisciplines() {
-    const response = await api.get('/filter/disciplines');
+    const response = await api.get('/filter/discipline', {
+      params: {
+        teachingTypeId: filterStore.selectedTeachingType?.id,
+        schoolNumber: filterStore.selectedSchool?.schoolNumber,
+        enrollment: teacherStore.selectedTeacher?.enrollment,
+        year: filterStore.selectedYear,
+        shiftId: filterStore.selectedShift?.id,
+        groupId: filterStore.selectedGroup?.id
+      }
+    });
+
     return response.data;
   }
-  
-  export async function fetchClasses() {
-    const response = await api.get('/filter/classes');
-    return response.data;
-  }
-  
-  export async function fetchBimesters() {
-    const response = await api.get('/filter/bimesters');
+
+  export async function fetchGrades() {
+    const response = await api.get('/filter/grade', {
+      params: {
+        teachingTypeId: filterStore.selectedTeachingType?.id,
+        schoolNumber: filterStore.selectedSchool?.schoolNumber,
+        enrollment: teacherStore.selectedTeacher?.enrollment,
+        year: filterStore.selectedYear,
+        shiftId: filterStore.selectedShift?.id,
+        groupId: filterStore.selectedGroup?.id,
+        disciplineId: filterStore.selectedDiscipline?.id
+      }
+    });
+
     return response.data;
   }

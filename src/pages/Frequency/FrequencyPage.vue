@@ -26,19 +26,19 @@
                     :table-class="$q.dark.isActive ? 'table-dark' : 'table-light'" />
 
                 <div v-else-if="showTable" class="q-gutter-md">
-                    <q-card v-for="diario in paginatedCards" :key="diario.id" class="q-pa-md" bordered>
+                    <q-card v-for="diary in paginatedCards" :key="diary.id" class="q-pa-md" bordered>
                         <q-card-section>
-                            <div class="text-subtitle1"><strong>{{ diario.discipline }}</strong></div>
+                            <div class="text-subtitle1"><strong>{{ diary.discipline }}</strong></div>
                         </q-card-section>
                         <q-separator />
                         <q-card-section class="q-pt-md">
-                            <div><strong>Etapa:</strong> {{ diario.teachingType }}</div>
-                            <div><strong>Escola:</strong> {{ diario.school }}</div>
-                            <div><strong>Turma:</strong> {{ diario.class }}</div>
-                            <div><strong>Bimestre:</strong> {{ diario.bimester }}</div>
-                            <div><strong>Ano:</strong> {{ diario.year }}</div>
-                            <div><strong>Turno:</strong> {{ diario.shift }}</div>
-                            <div><strong>Grupo:</strong> {{ diario.group }}</div>
+                            <div><strong>Etapa:</strong> {{ diary.teachingType }}</div>
+                            <div><strong>Escola:</strong> {{ diary.school }}</div>
+                            <div><strong>Turma:</strong> {{ diary.grade }}</div>
+                            <div><strong>Bimestre:</strong> {{ diary.bimester }}</div>
+                            <div><strong>Ano:</strong> {{ diary.year }}</div>
+                            <div><strong>Turno:</strong> {{ diary.shift }}</div>
+                            <div><strong>Grupo:</strong> {{ diary.group }}</div>
                         </q-card-section>
                     </q-card>
 

@@ -1,29 +1,29 @@
 import { ref, computed, watch } from 'vue';
 import type { QTableColumn } from 'quasar';
-import { fetchSchools, fetchTeachingType, fetchYears } from 'src/services/filters/filtersService';
-import type { TeachingType, School, Year } from 'src/types/FilterOption';
+import { fetchDisciplines, fetchGrades, fetchGroups, fetchSchools, fetchShifts, fetchTeachingType, fetchYears } from 'src/services/filters/filtersService';
+import type { TeachingType, School, Year, Shift, Group, Discipline, Grade, Bimester } from 'src/types/FilterOption';
 import { useFilterStore } from 'src/stores/filterStore';
 
 interface FilterModel {
   teachingType: TeachingType | null;
   school: School | null;
-  year: number | null;
-  // shift: string | null;
-  // group: number | null;
-  // discipline: string | null;
-  // class: string | null;
-  // bimester: number | null;
+  year: Year | null;
+  shift: Shift | null;
+  group: Group | null;
+  discipline: Discipline | null;
+  grade: Grade | null;
+  bimester: Bimester | null;
 }
 
 const initialFilters: FilterModel = {
   teachingType: null,
   school: null,
   year: null,
-  // shift: null,
-  // group: null,
-  // discipline: null,
-  // class: null,
-  // bimester: null
+  shift: null,
+  group: null,
+  discipline: null,
+  grade: null,
+  bimester: null
 };
 
 const selectFields = ref({
@@ -45,16 +45,36 @@ const selectFields = ref({
     optionValue: 'value',
     options: [] as Year[] 
   },
-  // shift: {
-  //   label: 'Turno',
-  //   optionLabel: 'description',
-  //   optionValue: 'id',
-  //   options: [] as Shift[]
-  // },
-  // group: { label: 'Grupo / Ano Escolar', options: [] as SelectOption[] },
-  // discipline: { label: 'Professor / Componente Curricular', options: [] as SelectOption[] },
-  // class: { label: 'Turma', options: [] as SelectOption[] },
-  // bimester: { label: 'Bimestre', options: [] as SelectOption[] }
+  shift: {
+    label: 'Turno',
+    optionLabel: 'description',
+    optionValue: 'id',
+    options: [] as Shift[]
+  },
+  group: { 
+    label: 'Grupo / Ano Escolar',
+    optionLabel: 'description',
+    optionValue: 'id',
+    options: [] as Group[] 
+  },
+  discipline: { 
+    label: 'Professor / Componente Curricular',
+    optionLabel: 'description',
+    optionValue: 'id',
+    options: [] as Discipline[] 
+  },
+  grade: { 
+    label: 'Turma',
+    optionLabel: 'description',
+    optionValue: 'id',
+    options: [] as Grade[] 
+  },
+  bimester: { 
+    label: 'Bimestre', 
+    optionLabel: 'value',
+    optionValue: 'value',
+    options: [] as Bimester[] 
+  }
 });
 
 const rows = ref([
@@ -66,7 +86,7 @@ const rows = ref([
     shift: 'Matutino',
     group: 1,
     discipline: 'Português',
-    class: 'Turma A',
+    grade: 'Turma A',
     bimester: '1º Bimestre'
   },
   {
@@ -77,7 +97,7 @@ const rows = ref([
     shift: 'Noturno',
     group: 3,
     discipline: 'Matemática',
-    class: 'Turma B',
+    grade: 'Turma B',
     bimester: '2º Bimestre'
   }
 ]);
@@ -89,7 +109,7 @@ const columns: QTableColumn[] = [
   { name: 'shift', label: 'Turno', field: 'shift', align: 'left', sortable: true },
   { name: 'group', label: 'Grupo', field: 'group', align: 'left', sortable: true },
   { name: 'discipline', label: 'Disciplina', field: 'discipline', align: 'left', sortable: true },
-  { name: 'class', label: 'Turma', field: 'class', align: 'left', sortable: true },
+  { name: 'grade', label: 'Turma', field: 'grade', align: 'left', sortable: true },
   { name: 'bimester', label: 'Bimestre', field: 'bimester', align: 'left', sortable: true }
 ];
 
@@ -111,22 +131,167 @@ const filterStore = useFilterStore();
 async function loadSelectOptions() {
   const teachingTypeData = await fetchTeachingType();
   selectFields.value.teachingType.options = Array.isArray(teachingTypeData.data) ? teachingTypeData.data : [];
-
-  const schoolsData = await fetchSchools();
-  selectFields.value.school.options = Array.isArray(schoolsData.data) ? schoolsData.data : [];
 }
 
-watch([() => filters.value.teachingType, () => filters.value.school], async ([teachingType, school]) => {
-  filterStore.setSelections(teachingType, school, null);
-  
-  const yearData = await fetchYears();
-  selectFields.value.year.options = Array.isArray(yearData) ? yearData : [];
-});
+watch(
+  () => filters.value.teachingType,
+  (teachingType) => {
+    filters.value.school = null;
+    filters.value.year = null;
+
+    filterStore.setSelections(teachingType, null, null, null, null, null, null, null);
+
+    if (teachingType?.id) {
+      void fetchSchools().then((res) => {
+        selectFields.value.school.options = Array.isArray(res.data) ? res.data : [];
+      });
+    } else {
+      selectFields.value.school.options = [];
+      selectFields.value.year.options = [];
+      selectFields.value.shift.options = [];
+      selectFields.value.group.options = [];
+      selectFields.value.discipline.options = [];
+      selectFields.value.grade.options = [];
+      selectFields.value.bimester.options = [];
+    }
+  }
+);
+
+watch(
+  () => filters.value.school,
+  (school) => {
+    filters.value.year = null;
+
+    filterStore.setSelections(filters.value.teachingType, school, null, null, null, null, null, null);
+
+    if (filters.value.teachingType && school?.sector) {
+      void fetchYears().then((res) => {
+        selectFields.value.year.options = Array.isArray(res.data) ? res.data : [];
+      });
+    } else {
+      selectFields.value.year.options = [];
+      selectFields.value.shift.options = [];
+      selectFields.value.group.options = [];
+      selectFields.value.discipline.options = [];
+      selectFields.value.grade.options = [];
+      selectFields.value.bimester.options = [];
+    }
+  }
+);
+
+watch(
+  () => filters.value.year,
+  (year) => {
+    filters.value.shift = null;
+
+    filterStore.setSelections(filters.value.teachingType, filters.value.school, year, null, null, null, null, null);
+
+    if (filters.value.teachingType && filters.value.school && year) {
+      void fetchShifts().then((res) => {
+        selectFields.value.shift.options = Array.isArray(res.data) ? res.data : [];
+      });
+    } else {
+      selectFields.value.shift.options = [];
+      selectFields.value.group.options = [];
+      selectFields.value.discipline.options = [];
+      selectFields.value.grade.options = [];
+      selectFields.value.bimester.options = [];
+    }
+  }
+);
+
+watch(
+  () => filters.value.shift,
+  (shift) => {
+    filters.value.group = null;
+
+    filterStore.setSelections(filters.value.teachingType, filters.value.school, filters.value.year, shift, null, null, null, null);
+
+    if (filters.value.teachingType && filters.value.school && filters.value.year && shift?.id) {
+      void fetchGroups().then((res) => {
+        selectFields.value.group.options = Array.isArray(res.data) ? res.data : [];
+      });
+    } else {
+      selectFields.value.group.options = [];
+      selectFields.value.discipline.options = [];
+      selectFields.value.grade.options = [];
+      selectFields.value.bimester.options = [];
+    }
+  }
+);
+
+watch(
+  () => filters.value.group,
+  (group) => {
+    filters.value.discipline = null;
+
+    filterStore.setSelections(filters.value.teachingType, filters.value.school, filters.value.year, filters.value.shift, group, null, null, null);
+
+    if (filters.value.teachingType && filters.value.school && filters.value.year && filters.value.shift && group?.id) {
+      void fetchDisciplines().then((res) => {
+        selectFields.value.discipline.options = Array.isArray(res.data) ? res.data : [];
+      });
+    } else {
+      selectFields.value.discipline.options = [];
+      selectFields.value.grade.options = [];
+      selectFields.value.bimester.options = [];
+    }
+  }
+);
+
+watch(
+  () => filters.value.discipline,
+  (discipline) => {
+    filters.value.grade = null;
+
+    filterStore.setSelections(filters.value.teachingType, filters.value.school, filters.value.year, filters.value.shift, filters.value.group, discipline, null, null);
+
+    if (filters.value.teachingType && filters.value.school && filters.value.year && filters.value.shift && filters.value.group && discipline?.id) {
+      void fetchGrades().then((res) => {
+        selectFields.value.grade.options = Array.isArray(res.data) ? res.data : [];
+      });
+    } else {
+      selectFields.value.grade.options = [];
+      selectFields.value.bimester.options = [];
+    }
+  }
+);
+
+watch(
+  () => filters.value.grade,
+  (grade) => {
+    filters.value.bimester = null;
+
+    filterStore.setSelections(filters.value.teachingType, filters.value.school, filters.value.year, filters.value.shift, filters.value.group, filters.value.discipline, grade, null);
+
+    if (filters.value.teachingType && filters.value.school && filters.value.year && filters.value.shift && filters.value.group && filters.value.discipline && grade?.id) {
+        selectFields.value.bimester.options = [
+          { value: 1 },
+          { value: 2 },
+          { value: 3 },
+          { value: 4 }
+        ];
+    } else {
+      selectFields.value.bimester.options = [];
+    }
+  }
+);
+
+watch(
+  () => filters.value.bimester,
+  (bimester) => {
+    filterStore.setSelections(filters.value.teachingType, filters.value.school, filters.value.year, filters.value.shift, filters.value.group, filters.value.discipline, filters.value.grade, bimester);
+  }
+);
 
 function clearFilters() {
   filters.value = { ...initialFilters };
   validate.value = false;
   showTable.value = false;
+
+  selectFields.value.school.options = [];
+  selectFields.value.year.options = [];
+  filterStore.setSelections(null, null, null, null, null, null, null, null);
 }
 
 function onSearch() {
