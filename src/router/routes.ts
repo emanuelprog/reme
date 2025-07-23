@@ -19,9 +19,10 @@ const routes: RouteRecordRaw[] = [
     children: [
       { path: 'home', component: () => import('pages/Home/HomePage.vue'), meta: { requiresAuth: true } },
       { path: 'config', component: () => import('pages/Config/ConfigPage.vue'), meta: { requiresAuth: true } },
-      { path: 'lesson-plan', component: () => import('pages/LessonPlan/LessonPlanPage.vue'), meta: { requiresAuth: true } },
-      { path: 'averages', component: () => import('pages/Average/AveragePage.vue'), meta: { requiresAuth: true } },
-      { path: 'frequency', component: () => import('pages/Frequency/FrequencyPage.vue'), meta: { requiresAuth: true } }
+      { path: 'selection-lesson-plan', component: () => import('pages/SelectionLessonPlan/SelectionLessonPlanPage.vue'), meta: { requiresAuth: true } },
+      { path: 'selection-averages', component: () => import('pages/SelectionAverage/SelectionAveragePage.vue'), meta: { requiresAuth: true } },
+      { path: 'selection-frequency', component: () => import('pages/SelectionFrequency/SelectionFrequencyPage.vue'), meta: { requiresAuth: true } },
+      { path: 'frequency', component: () => import('pages/Frequency/FrequencyPage.vue'), meta: { requiresAuth: true, requiresDiary: true } }
     ],
   },
 ];

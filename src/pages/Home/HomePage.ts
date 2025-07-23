@@ -21,19 +21,19 @@ export function useHomePage() {
       icon: 'edit_calendar',
       title: 'Plano de Aula',
       description: 'Cadastre e consulte seus planos de aula por disciplina e turma.',
-      route: 'lesson-plan'
+      route: 'selection-lesson-plan'
     },
     {
       icon: 'event_available',
       title: 'Frequência',
       description: 'Cadastre e consulte a presença dos alunos por data e turma.',
-      route: 'frequency'
+      route: 'selection-frequency'
     },
     {
       icon: 'calculate',
       title: 'Médias',
       description: 'Cadastre e consulte as médias bimestrais dos alunos.',
-      route: 'averages'
+      route: 'selection-averages'
     }
   ];
 

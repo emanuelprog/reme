@@ -1,7 +1,7 @@
 <template>
     <q-page class="q-pa-md" :class="$q.dark.isActive ? 'bg-grey-10' : 'bg-white'">
         <div class="column items-center">
-            <div class="text-h6 text-center q-my-lg">Médias</div>
+            <div class="text-h6 text-center q-my-lg">Plano de Aula</div>
 
             <div class="row q-col-gutter-md items-center justify-center" style="max-width: 1200px; width: 100%">
                 <q-select v-for="(field, key) in selectFields" :key="key" v-model="filters[key]"
@@ -54,8 +54,8 @@
 </template>
 
 <script setup lang="ts">
-import { useAveragePage } from './AveragePage';
-import './AveragePage.scss';
+import { useLessonPlanPage } from './SelectionLessonPlanPage';
+import './SelectionLessonPlanPage.scss';
 
 const {
     filters,
@@ -70,5 +70,5 @@ const {
     onSearch,
     onCreate,
     clearFilters
-} = useAveragePage();
+} = useLessonPlanPage();
 </script>

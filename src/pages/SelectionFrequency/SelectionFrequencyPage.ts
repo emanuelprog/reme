@@ -1,10 +1,12 @@
 import { ref, computed, watch } from 'vue';
-import type { QTableColumn } from 'quasar';
+import { Notify, type QTableColumn } from 'quasar';
 import { fetchDisciplines, fetchGrades, fetchGroups, fetchSchools, fetchShifts, fetchTeachingType, fetchYears } from 'src/services/filters/filtersService';
 import type { TeachingType, School, Year, Shift, Group, Discipline, Grade, Bimester } from 'src/types/FilterOption';
 import { useFilterStore } from 'src/stores/filterStore';
-import { fetchDiaryGrades } from 'src/services/diary/diaryService';
+import { fetchDiaryCreationInfo, fetchDiaryGrades } from 'src/services/diary/diaryService';
 import type { DiaryGrade } from 'src/types/DiaryGrade';
+import axios from 'axios';
+import { useDiaryGradeStore } from 'src/stores/diaryStore';
 import { useTeacherStore } from 'src/stores/teacherStore';
 
 interface FilterModel {
@@ -42,11 +44,11 @@ const selectFields = ref({
     optionValue: 'sector',
     options: [] as School[]
   },
-  year: { 
+  year: {
     label: 'Ano Referência',
     optionLabel: 'value',
     optionValue: 'value',
-    options: [] as Year[] 
+    options: [] as Year[]
   },
   shift: {
     label: 'Turno',
@@ -54,29 +56,29 @@ const selectFields = ref({
     optionValue: 'id',
     options: [] as Shift[]
   },
-  group: { 
+  group: {
     label: 'Grupo / Ano Escolar',
     optionLabel: 'description',
     optionValue: 'id',
-    options: [] as Group[] 
+    options: [] as Group[]
   },
-  discipline: { 
+  discipline: {
     label: 'Professor / Componente Curricular',
     optionLabel: 'description',
     optionValue: 'id',
-    options: [] as Discipline[] 
+    options: [] as Discipline[]
   },
-  grade: { 
+  grade: {
     label: 'Turma',
     optionLabel: 'description',
     optionValue: 'id',
-    options: [] as Grade[] 
+    options: [] as Grade[]
   },
-  bimester: { 
-    label: 'Bimestre', 
+  bimester: {
+    label: 'Bimestre',
     optionLabel: 'value',
     optionValue: 'value',
-    options: [] as Bimester[] 
+    options: [] as Bimester[]
   }
 });
 
@@ -106,6 +108,7 @@ const paginatedCards = computed(() => {
 });
 
 const filterStore = useFilterStore();
+const diaryStore = useDiaryGradeStore();
 const teacherStore = useTeacherStore();
 
 const validationContext = ref<'search' | 'create' | null>(null);
@@ -155,8 +158,8 @@ watch(
     if (filters.value.teachingType && school?.sector) {
       void fetchYears().then((res) => {
         selectFields.value.year.options = Array.isArray(res.data)
-        ? res.data.map((y: number) => ({ value: y, label: String(y) }))
-        : [];
+          ? res.data.map((y: number) => ({ value: y, label: String(y) }))
+          : [];
       });
     } else {
       resetOptionsFrom('group');
@@ -255,12 +258,12 @@ watch(
     filterStore.setSelections(filters.value.teachingType, filters.value.school, filters.value.year, filters.value.shift, filters.value.group, filters.value.discipline, grade, null);
 
     if (filters.value.teachingType && filters.value.school && filters.value.year && filters.value.shift && filters.value.group && filters.value.discipline && grade?.id) {
-        selectFields.value.bimester.options = [
-          { label: '1', value: 1 },
-          { label: '2', value: 2 },
-          { label: '3', value: 3 },
-          { label: '4', value: 4 }
-        ];
+      selectFields.value.bimester.options = [
+        { label: '1', value: 1 },
+        { label: '2', value: 2 },
+        { label: '3', value: 3 },
+        { label: '4', value: 4 }
+      ];
     } else {
       selectFields.value.bimester.options = [];
       showTable.value = false;
@@ -308,17 +311,7 @@ async function onSearch() {
   showTable.value = false;
 
   try {
-    const response = await fetchDiaryGrades({
-      enrollment: teacherStore.selectedTeacher?.enrollment ?? null, 
-      teachingTypeId: filters.value.teachingType?.id ?? null,
-      sector: filters.value.school?.sector ?? null,
-      year: filters.value.year?.value ?? null,
-      shiftId: filters.value?.shift?.isIntegral ? 4 : filters.value.shift?.id ?? null,
-      groupId: filters.value.group?.id ?? null,
-      disciplineId: filters.value.discipline?.id ?? null,
-      gradeId: filters.value.grade?.id ?? null,
-      bimester: filters.value.bimester?.value ?? null
-    });
+    const response = await fetchDiaryGrades();
 
     diaryGrades.value = Array.isArray(response.data) ? response.data : [];
   } catch (error) {
@@ -330,13 +323,58 @@ async function onSearch() {
   }
 }
 
-function onCreate() {
+async function onCreate() {
   validationContext.value = 'create';
   validate.value = true;
 
   const filled = Object.values(filters.value).every(val => val !== null && val !== null);
 
-  if (filled) alert('Diário criado com sucesso!');
+  if (!filled) return;
+
+  try {
+    const response = await fetchDiaryCreationInfo();
+
+    const { teacherScheduleId, bimesterPeriod } = response.data;
+
+    if (!teacherStore.selectedTeacher) return;
+
+    const newDiary: DiaryGrade = {
+      id: null,
+      school: filters.value.school,
+      group: filters.value.group,
+      shift: filters.value.shift,
+      grade: filters.value.grade,
+      teachingType: filters.value.teachingType,
+      substituteTeacherId: teacherStore.selectedTeacher?.substituteTeacherId,
+      enrollment: teacherStore.selectedTeacher?.enrollment,
+      employmentLink: teacherStore.selectedTeacher?.employmentLink,
+      bimesterPeriod: bimesterPeriod,
+      discipline: filters.value.discipline,
+      diaryStatusId: 1,
+      teacherScheduleId: teacherScheduleId,
+      diaryType: 'F',
+      assessmentTypeId: null,
+      changeUser: teacherStore.selectedTeacher?.name,
+      term: false,
+      createdAt: new Date()
+    };
+
+    diaryStore.setSelectedDiaryGrade(newDiary);
+  } catch (error: unknown) {
+    let errorMessage = 'Erro ao obter dados do diário.';
+
+    if (axios.isAxiosError(error) && error.response?.data?.message && error.response.data.code) {
+      errorMessage = error.response.data.message;
+    }
+
+    console.error('Erro ao buscar dados para criação de diário:', error);
+    Notify.create({
+      type: 'negative',
+      message: errorMessage,
+      position: 'top-right',
+      timeout: 1000
+    });
+  }
 }
 
 export function useFrequencyPage() {
