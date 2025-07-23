@@ -54,7 +54,7 @@
 </template>
 
 <script setup lang="ts">
-import { useAveragePage } from './SelectionAveragePage';
+import { useSelectionAveragePage } from './SelectionAveragePage';
 import './SelectionAveragePage.scss';
 
 const {
@@ -70,5 +70,5 @@ const {
     onSearch,
     onCreate,
     clearFilters
-} = useAveragePage();
+} = useSelectionAveragePage();
 </script>

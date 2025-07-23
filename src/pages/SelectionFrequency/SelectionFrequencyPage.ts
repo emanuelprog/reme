@@ -323,20 +323,19 @@ async function onSearch() {
   }
 }
 
-async function onCreate() {
+async function onCreate(): Promise<boolean> {
   validationContext.value = 'create';
   validate.value = true;
 
-  const filled = Object.values(filters.value).every(val => val !== null && val !== null);
 
-  if (!filled) return;
+  if (!isFilterFilled()) return false;
 
   try {
     const response = await fetchDiaryCreationInfo();
 
     const { teacherScheduleId, bimesterPeriod } = response.data;
 
-    if (!teacherStore.selectedTeacher) return;
+    if (!teacherStore.selectedTeacher) return false;
 
     const newDiary: DiaryGrade = {
       id: null,
@@ -360,6 +359,7 @@ async function onCreate() {
     };
 
     diaryStore.setSelectedDiaryGrade(newDiary);
+    return true;
   } catch (error: unknown) {
     let errorMessage = 'Erro ao obter dados do diário.';
 
@@ -374,10 +374,27 @@ async function onCreate() {
       position: 'top-right',
       timeout: 1000
     });
+
+    return false;
   }
 }
 
-export function useFrequencyPage() {
+function isFilterFilled(): boolean {
+  const f = filters.value;
+
+  return !!(
+    f.school &&
+    f.teachingType &&
+    f.year &&
+    f.shift &&
+    f.group &&
+    f.grade &&
+    f.discipline &&
+    f.bimester
+  );
+}
+
+export function useSelectionFrequencyPage() {
   return {
     filters,
     selectFields,

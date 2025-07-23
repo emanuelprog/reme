@@ -1,0 +1,46 @@
+.frequency-cell {
+    width: 60px;
+    margin: auto;
+    padding: 0;
+    text-align: center;
+  
+    .q-field__control,
+    .q-field__native {
+      justify-content: center !important;
+      text-align: center !important;
+    }
+  
+    .q-field__control {
+      min-height: 30px;
+      padding: 0 4px;
+    }
+  
+    .q-field__marginal {
+      display: none;
+    }
+  }
+  
+  .table-wrapper {
+    overflow-x: auto;
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .table-light thead tr {
+    background-color: $primary;
+    color: white;
+  }
+  
+  .table-dark thead tr {
+    background-color: $primary;
+    color: white;
+  }
+  
+  .q-td.name-column {
+    white-space: normal !important;
+    word-break: break-word;
+    max-width: 90%;
+  }

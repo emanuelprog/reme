@@ -55,7 +55,7 @@
 
 <script setup lang="ts">
 import { onMounted } from 'vue';
-import { useFrequencyPage } from './SelectionFrequencyPage';
+import { useSelectionFrequencyPage } from './SelectionFrequencyPage';
 import './SelectionFrequencyPage.scss';
 import { useRouter } from 'vue-router';
 
@@ -76,11 +76,13 @@ const {
     onCreate,
     clearFilters,
     loadSelectOptions
-} = useFrequencyPage();
+} = useSelectionFrequencyPage();
 
 async function createDiary() {
-    await onCreate();
-    await router.push('/frequency');
+    const created = await onCreate();
+    if (created) {
+        await router.push('/frequency');
+    }
 }
 
 onMounted(loadSelectOptions);

@@ -24,47 +24,63 @@ const initialFilters: FilterModel = {
 };
 
 const selectFields = {
-  teachingType: { label: 'Etapa da Ed. Básica / Modalidade', options: [
-    { label: 'Ensino Fundamental', value: 'fundamental' },
-    { label: 'Ensino Médio', value: 'medio' },
-    { label: 'EJA', value: 'eja' }
-  ]},
-  school: { label: 'Unidade Escolar', options: [
-    { label: 'Escola Municipal A', value: 'a' },
-    { label: 'Escola Municipal B', value: 'b' },
-    { label: 'Escola Estadual C', value: 'c' }
-  ]},
-  year: { label: 'Ano Referência', options: [
-    { label: '2023', value: 2023 },
-    { label: '2024', value: 2024 },
-    { label: '2025', value: 2025 }
-  ]},
-  shift: { label: 'Turno', options: [
-    { label: 'Matutino', value: 'manha' },
-    { label: 'Vespertino', value: 'tarde' },
-    { label: 'Noturno', value: 'noite' }
-  ]},
-  group: { label: 'Grupo / Ano Escolar', options: [
-    { label: '1º Ano', value: 1 },
-    { label: '2º Ano', value: 2 },
-    { label: '3º Ano', value: 3 }
-  ]},
-  discipline: { label: 'Professor / Componente Curricular', options: [
-    { label: 'Matemática', value: 'Matemática' },
-    { label: 'Português', value: 'Português' },
-    { label: 'Ciências', value: 'Ciências' }
-  ]},
-  class: { label: 'Turma', options: [
-    { label: 'Turma A', value: 'a' },
-    { label: 'Turma B', value: 'b' },
-    { label: 'Turma C', value: 'c' }
-  ]},
-  bimester: { label: 'Bimestre', options: [
-    { label: '1º Bimestre', value: 1 },
-    { label: '2º Bimestre', value: 2 },
-    { label: '3º Bimestre', value: 3 },
-    { label: '4º Bimestre', value: 4 }
-  ]}
+  teachingType: {
+    label: 'Etapa da Ed. Básica / Modalidade', options: [
+      { label: 'Ensino Fundamental', value: 'fundamental' },
+      { label: 'Ensino Médio', value: 'medio' },
+      { label: 'EJA', value: 'eja' }
+    ]
+  },
+  school: {
+    label: 'Unidade Escolar', options: [
+      { label: 'Escola Municipal A', value: 'a' },
+      { label: 'Escola Municipal B', value: 'b' },
+      { label: 'Escola Estadual C', value: 'c' }
+    ]
+  },
+  year: {
+    label: 'Ano Referência', options: [
+      { label: '2023', value: 2023 },
+      { label: '2024', value: 2024 },
+      { label: '2025', value: 2025 }
+    ]
+  },
+  shift: {
+    label: 'Turno', options: [
+      { label: 'Matutino', value: 'manha' },
+      { label: 'Vespertino', value: 'tarde' },
+      { label: 'Noturno', value: 'noite' }
+    ]
+  },
+  group: {
+    label: 'Grupo / Ano Escolar', options: [
+      { label: '1º Ano', value: 1 },
+      { label: '2º Ano', value: 2 },
+      { label: '3º Ano', value: 3 }
+    ]
+  },
+  discipline: {
+    label: 'Professor / Componente Curricular', options: [
+      { label: 'Matemática', value: 'Matemática' },
+      { label: 'Português', value: 'Português' },
+      { label: 'Ciências', value: 'Ciências' }
+    ]
+  },
+  class: {
+    label: 'Turma', options: [
+      { label: 'Turma A', value: 'a' },
+      { label: 'Turma B', value: 'b' },
+      { label: 'Turma C', value: 'c' }
+    ]
+  },
+  bimester: {
+    label: 'Bimestre', options: [
+      { label: '1º Bimestre', value: 1 },
+      { label: '2º Bimestre', value: 2 },
+      { label: '3º Bimestre', value: 3 },
+      { label: '4º Bimestre', value: 4 }
+    ]
+  }
 };
 
 const rows = ref([
@@ -138,7 +154,7 @@ function onCreate() {
   if (filled) alert('Diário criado com sucesso!');
 }
 
-export function useAveragePage() {
+export function useSelectionAveragePage() {
   return {
     filters,
     selectFields,

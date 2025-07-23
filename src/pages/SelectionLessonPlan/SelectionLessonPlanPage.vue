@@ -54,7 +54,7 @@
 </template>
 
 <script setup lang="ts">
-import { useLessonPlanPage } from './SelectionLessonPlanPage';
+import { useSelectionLessonPlanPage } from './SelectionLessonPlanPage';
 import './SelectionLessonPlanPage.scss';
 
 const {
@@ -70,5 +70,5 @@ const {
     onSearch,
     onCreate,
     clearFilters
-} = useLessonPlanPage();
+} = useSelectionLessonPlanPage();
 </script>
