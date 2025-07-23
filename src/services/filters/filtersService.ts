@@ -39,7 +39,7 @@ export async function fetchTeachingType() {
         teachingTypeId: filterStore.selectedTeachingType?.id,
         schoolNumber: filterStore.selectedSchool?.schoolNumber,
         enrollment: teacherStore.selectedTeacher?.enrollment,
-        year: filterStore.selectedYear
+        year: filterStore.selectedYear?.value
       }
     });
 
@@ -52,7 +52,7 @@ export async function fetchTeachingType() {
         teachingTypeId: filterStore.selectedTeachingType?.id,
         schoolNumber: filterStore.selectedSchool?.schoolNumber,
         enrollment: teacherStore.selectedTeacher?.enrollment,
-        year: filterStore.selectedYear,
+        year: filterStore.selectedYear?.value,
         shiftId: filterStore.selectedShift?.id
       }
     });
@@ -66,7 +66,7 @@ export async function fetchTeachingType() {
         teachingTypeId: filterStore.selectedTeachingType?.id,
         schoolNumber: filterStore.selectedSchool?.schoolNumber,
         enrollment: teacherStore.selectedTeacher?.enrollment,
-        year: filterStore.selectedYear,
+        year: filterStore.selectedYear?.value,
         shiftId: filterStore.selectedShift?.id,
         groupId: filterStore.selectedGroup?.id
       }
@@ -81,7 +81,7 @@ export async function fetchTeachingType() {
         teachingTypeId: filterStore.selectedTeachingType?.id,
         schoolNumber: filterStore.selectedSchool?.schoolNumber,
         enrollment: teacherStore.selectedTeacher?.enrollment,
-        year: filterStore.selectedYear,
+        year: filterStore.selectedYear?.value,
         shiftId: filterStore.selectedShift?.id,
         groupId: filterStore.selectedGroup?.id,
         disciplineId: filterStore.selectedDiscipline?.id

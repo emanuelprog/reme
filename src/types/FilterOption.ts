@@ -10,6 +10,7 @@ export interface School {
 }
 
 export interface Year {
+  label: string;
   value: number;
 }
 
@@ -40,5 +41,6 @@ export interface Grade {
 }
 
 export interface Bimester {
+  label: string;
   value: number;
 }

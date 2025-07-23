@@ -3,6 +3,9 @@ import type { QTableColumn } from 'quasar';
 import { fetchDisciplines, fetchGrades, fetchGroups, fetchSchools, fetchShifts, fetchTeachingType, fetchYears } from 'src/services/filters/filtersService';
 import type { TeachingType, School, Year, Shift, Group, Discipline, Grade, Bimester } from 'src/types/FilterOption';
 import { useFilterStore } from 'src/stores/filterStore';
+import { fetchDiaryGrades } from 'src/services/diary/diaryService';
+import type { DiaryGrade } from 'src/types/DiaryGrade';
+import { useTeacherStore } from 'src/stores/teacherStore';
 
 interface FilterModel {
   teachingType: TeachingType | null;
@@ -77,40 +80,15 @@ const selectFields = ref({
   }
 });
 
-const rows = ref([
-  {
-    id: 1,
-    teachingType: 'Ensino Fundamental',
-    school: 'Escola Municipal A',
-    year: 2024,
-    shift: 'Matutino',
-    group: 1,
-    discipline: 'Português',
-    grade: 'Turma A',
-    bimester: '1º Bimestre'
-  },
-  {
-    id: 2,
-    teachingType: 'Ensino Médio',
-    school: 'Escola Estadual C',
-    year: 2025,
-    shift: 'Noturno',
-    group: 3,
-    discipline: 'Matemática',
-    grade: 'Turma B',
-    bimester: '2º Bimestre'
-  }
-]);
-
 const columns: QTableColumn[] = [
-  { name: 'teachingType', label: 'Etapa', field: 'teachingType', align: 'left', sortable: true },
-  { name: 'school', label: 'Escola', field: 'school', align: 'left', sortable: true },
-  { name: 'year', label: 'Ano', field: 'year', align: 'left', sortable: true },
-  { name: 'shift', label: 'Turno', field: 'shift', align: 'left', sortable: true },
-  { name: 'group', label: 'Grupo', field: 'group', align: 'left', sortable: true },
-  { name: 'discipline', label: 'Disciplina', field: 'discipline', align: 'left', sortable: true },
-  { name: 'grade', label: 'Turma', field: 'grade', align: 'left', sortable: true },
-  { name: 'bimester', label: 'Bimestre', field: 'bimester', align: 'left', sortable: true }
+  { name: 'teachingType', label: 'Etapa', field: row => row.teachingType?.description, align: 'left', sortable: true },
+  { name: 'school', label: 'Escola', field: row => row.sector, align: 'left', sortable: true },
+  { name: 'year', label: 'Ano', field: row => row.createdAt ? new Date(row.createdAt).getFullYear() : '', align: 'left', sortable: true },
+  { name: 'shift', label: 'Turno', field: row => row.shift?.description, align: 'left', sortable: true },
+  { name: 'group', label: 'Grupo', field: row => row.group?.description, align: 'left', sortable: true },
+  { name: 'discipline', label: 'Disciplina', field: row => row.discipline?.description, align: 'left', sortable: true },
+  { name: 'grade', label: 'Turma', field: row => row.grade?.description, align: 'left', sortable: true },
+  { name: 'bimester', label: 'Bimestre', field: row => row.bimesterPeriod?.bimester, align: 'left', sortable: true }
 ];
 
 const filters = ref<FilterModel>({ ...initialFilters });
@@ -118,15 +96,17 @@ const validate = ref(false);
 const showTable = ref(false);
 const loading = ref(false);
 
+const diaryGrades = ref<DiaryGrade[]>([]);
 const paginationCards = ref({ page: 1, rowsPerPage: 2 });
 
 const paginatedCards = computed(() => {
   const start = (paginationCards.value.page - 1) * paginationCards.value.rowsPerPage;
   const end = start + paginationCards.value.rowsPerPage;
-  return rows.value.slice(start, end);
+  return diaryGrades.value.slice(start, end);
 });
 
 const filterStore = useFilterStore();
+const teacherStore = useTeacherStore();
 
 async function loadSelectOptions() {
   const teachingTypeData = await fetchTeachingType();
@@ -153,6 +133,7 @@ watch(
       selectFields.value.discipline.options = [];
       selectFields.value.grade.options = [];
       selectFields.value.bimester.options = [];
+      showTable.value = false;
     }
   }
 );
@@ -166,7 +147,9 @@ watch(
 
     if (filters.value.teachingType && school?.sector) {
       void fetchYears().then((res) => {
-        selectFields.value.year.options = Array.isArray(res.data) ? res.data : [];
+        selectFields.value.year.options = Array.isArray(res.data)
+        ? res.data.map((y: number) => ({ value: y, label: String(y) }))
+        : [];
       });
     } else {
       selectFields.value.year.options = [];
@@ -175,6 +158,7 @@ watch(
       selectFields.value.discipline.options = [];
       selectFields.value.grade.options = [];
       selectFields.value.bimester.options = [];
+      showTable.value = false;
     }
   }
 );
@@ -186,9 +170,19 @@ watch(
 
     filterStore.setSelections(filters.value.teachingType, filters.value.school, year, null, null, null, null, null);
 
-    if (filters.value.teachingType && filters.value.school && year) {
+    if (filters.value.teachingType && filters.value.school && year?.value) {
       void fetchShifts().then((res) => {
-        selectFields.value.shift.options = Array.isArray(res.data) ? res.data : [];
+        const shifts = Array.isArray(res.data) ? res.data : [];
+
+        if (shifts.length === 1 && shifts[0].id === 4) {
+          selectFields.value.shift.options = [
+            { id: 4, description: 'MATUTINO', situation: true },
+            { id: 4, description: 'VESPERTINO', situation: true },
+            { id: 4, description: 'INTEGRAL', situation: true }
+          ];
+        } else {
+          selectFields.value.shift.options = shifts;
+        }
       });
     } else {
       selectFields.value.shift.options = [];
@@ -196,6 +190,7 @@ watch(
       selectFields.value.discipline.options = [];
       selectFields.value.grade.options = [];
       selectFields.value.bimester.options = [];
+      showTable.value = false;
     }
   }
 );
@@ -216,6 +211,7 @@ watch(
       selectFields.value.discipline.options = [];
       selectFields.value.grade.options = [];
       selectFields.value.bimester.options = [];
+      showTable.value = false;
     }
   }
 );
@@ -235,6 +231,7 @@ watch(
       selectFields.value.discipline.options = [];
       selectFields.value.grade.options = [];
       selectFields.value.bimester.options = [];
+      showTable.value = false;
     }
   }
 );
@@ -253,6 +250,7 @@ watch(
     } else {
       selectFields.value.grade.options = [];
       selectFields.value.bimester.options = [];
+      showTable.value = false;
     }
   }
 );
@@ -266,13 +264,14 @@ watch(
 
     if (filters.value.teachingType && filters.value.school && filters.value.year && filters.value.shift && filters.value.group && filters.value.discipline && grade?.id) {
         selectFields.value.bimester.options = [
-          { value: 1 },
-          { value: 2 },
-          { value: 3 },
-          { value: 4 }
+          { label: '1', value: 1 },
+          { label: '2', value: 2 },
+          { label: '3', value: 3 },
+          { label: '4', value: 4 }
         ];
     } else {
       selectFields.value.bimester.options = [];
+      showTable.value = false;
     }
   }
 );
@@ -294,14 +293,35 @@ function clearFilters() {
   filterStore.setSelections(null, null, null, null, null, null, null, null);
 }
 
-function onSearch() {
+async function onSearch() {
+  validate.value = true;
+
+  if (!Object.values(filters.value).every(val => val !== null && val !== null)) return;
+
   loading.value = true;
-  validate.value = false;
   showTable.value = false;
-  setTimeout(() => {
+
+  try {
+    const response = await fetchDiaryGrades({
+      enrollment: teacherStore.selectedTeacher?.enrollment ?? null, 
+      teachingTypeId: filters.value.teachingType?.id ?? null,
+      sector: filters.value.school?.sector ?? null,
+      year: filters.value.year?.value ?? null,
+      shiftId: filters.value.shift?.id ?? null,
+      groupId: filters.value.group?.id ?? null,
+      disciplineId: filters.value.discipline?.id ?? null,
+      gradeId: filters.value.grade?.id ?? null,
+      bimester: filters.value.bimester?.value ?? null
+    });
+
+    diaryGrades.value = Array.isArray(response.data) ? response.data : [];
+  } catch (error) {
+    console.error('Erro ao buscar diário:', error);
+    diaryGrades.value = [];
+  } finally {
     loading.value = false;
     showTable.value = true;
-  }, 1000);
+  }
 }
 
 function onCreate() {
@@ -317,7 +337,7 @@ export function useFrequencyPage() {
     validate,
     showTable,
     loading,
-    rows,
+    diaryGrades,
     columns,
     paginationCards,
     paginatedCards,

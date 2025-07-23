@@ -21,8 +21,8 @@
                     <q-spinner color="primary" size="40px" />
                 </div>
 
-                <q-table v-else-if="showTable && $q.screen.gt.xs" flat bordered title="Diários Encontrados" :rows="rows"
-                    :columns="columns" row-key="id" separator="horizontal"
+                <q-table v-else-if="showTable && $q.screen.gt.xs" flat bordered :rows="diaryGrades" :columns="columns"
+                    row-key="id" separator="horizontal"
                     :table-class="$q.dark.isActive ? 'table-dark' : 'table-light'" />
 
                 <div v-else-if="showTable" class="q-gutter-md">
@@ -35,8 +35,8 @@
                             <div><strong>Etapa:</strong> {{ diary.teachingType }}</div>
                             <div><strong>Escola:</strong> {{ diary.school }}</div>
                             <div><strong>Turma:</strong> {{ diary.grade }}</div>
-                            <div><strong>Bimestre:</strong> {{ diary.bimester }}</div>
-                            <div><strong>Ano:</strong> {{ diary.year }}</div>
+                            <div><strong>Bimestre:</strong> {{ diary.bimesterPeriod.bimester }}</div>
+                            <div><strong>Ano:</strong> {{ diary.createdAt }}</div>
                             <div><strong>Turno:</strong> {{ diary.shift }}</div>
                             <div><strong>Grupo:</strong> {{ diary.group }}</div>
                         </q-card-section>
@@ -44,7 +44,7 @@
 
                     <div class="row justify-center q-mt-md">
                         <q-pagination v-model="paginationCards.page"
-                            :max="Math.ceil(rows.length / paginationCards.rowsPerPage)" color="primary" input
+                            :max="Math.ceil(diaryGrades.length / paginationCards.rowsPerPage)" color="primary" input
                             max-pages="5" boundary-numbers />
                     </div>
                 </div>
@@ -64,7 +64,7 @@ const {
     validate,
     showTable,
     loading,
-    rows,
+    diaryGrades,
     columns,
     paginationCards,
     paginatedCards,
