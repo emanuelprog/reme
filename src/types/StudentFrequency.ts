@@ -1,9 +1,12 @@
 export type StudentFrequency = {
   id: number
   name: string
-  registration: string
-  status: string
+  callNumber: number
   hasObservation: boolean
+  hasOccurrence: boolean
   frequencies: Record<string, string>
-  editableFrequencies: Record<string, boolean>
+  editableFrequencies: Record<string, {
+    editable: boolean
+    observation: boolean
+  }>
 }

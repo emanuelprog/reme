@@ -1,15 +1,16 @@
 export interface Teacher {
-  cpf : string
+  cpf: string
   name: string
   employmentLink: number
-  enrollment: string 
+  enrollment: string
   substituteTeacherId: number
   holderName: string
   holderCpf: string
+  holderEmploymentLink: number
   isCoordinator: boolean
-  }
-  
-  export interface TeacherOption {
-    label: string;
-    value: Teacher;
-  }
+}
+
+export interface TeacherOption {
+  label: string;
+  value: Teacher;
+}

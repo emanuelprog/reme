@@ -1,23 +1,29 @@
 import { api } from 'src/boot/axios';
+import { useDiaryGradeStore } from 'src/stores/diaryStore';
 import { useFilterStore } from 'src/stores/filterStore';
-import { useTeacherStore } from 'src/stores/teacherStore';
+import type { FrequencySavePayload } from 'src/types/FrequencyResponse';
 
+const diaryStore = useDiaryGradeStore();
 const filterStore = useFilterStore();
-const teacherStore = useTeacherStore();
 
 export async function fetchFrequencies() {
   const response = await api.get('/frequencies', {
     params: {
-      enrollment: teacherStore.selectedTeacher?.enrollment ?? null,
-      teachingTypeId: filterStore.selectedTeachingType?.id ?? null,
-      sector: filterStore.selectedSchool?.sector ?? null,
+      teacherScheduleId: diaryStore.selectedDiaryGrade?.teacherScheduleId ?? null,
+      disciplineId: diaryStore.selectedDiaryGrade?.discipline?.id ?? null,
+      sector: diaryStore.selectedDiaryGrade?.sector ?? null,
+      group: diaryStore.selectedDiaryGrade?.group?.description ?? null,
+      grade: diaryStore.selectedDiaryGrade?.grade?.description ?? null,
+      shift: diaryStore.selectedDiaryGrade?.shift?.description ?? null,
       year: filterStore.selectedYear?.value ?? null,
-      shiftId: filterStore.selectedShift?.isIntegral ? 4 : filterStore.selectedShift?.id ?? null,
-      groupId: filterStore.selectedGroup?.id ?? null,
-      disciplineId: filterStore.selectedDiscipline?.id ?? null,
-      gradeId: filterStore.selectedGrade?.id ?? null,
-      bimester: filterStore.selectedBimester?.value ?? null
+      from: diaryStore.selectedDiaryGrade?.bimesterPeriod?.startDate ?? null,
+      to: diaryStore.selectedDiaryGrade?.bimesterPeriod?.endDate ?? null
     }
   });
-  return response.data;
+  return response.data.data;
+}
+
+export async function saveFrequencies(payload: FrequencySavePayload) {
+  const response = await api.post('/frequencies', payload)
+  return response.data
 }

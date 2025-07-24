@@ -29,16 +29,6 @@
   align-items: center;
 }
 
-.table-light thead tr {
-  background-color: $primary;
-  color: white;
-}
-
-.table-dark thead tr {
-  background-color: $primary;
-  color: white;
-}
-
 .q-td.name-column {
   white-space: normal !important;
   word-break: break-word;
@@ -73,3 +63,4 @@
     color: white !important;
   }
 }
+
