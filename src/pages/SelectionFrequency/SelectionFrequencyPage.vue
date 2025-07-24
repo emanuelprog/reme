@@ -22,8 +22,15 @@
                 </div>
 
                 <q-table v-else-if="showTable && $q.screen.gt.xs" flat bordered :rows="diaryGrades" :columns="columns"
-                    row-key="id" separator="horizontal"
-                    :table-class="$q.dark.isActive ? 'table-dark' : 'table-light'" />
+                    row-key="id" separator="horizontal" :table-class="$q.dark.isActive ? 'table-dark' : 'table-light'">
+                    <template v-slot:body-cell-actions="props">
+                        <q-td :props="props">
+                            <q-btn v-for="action in getDiaryActions(props.row)" :key="action" dense flat round
+                                color="primary" size="sm" :icon="getActionIcon(action)"
+                                @click="handleDiaryAction(action, props.row)" :title="action" class="q-mr-xs" />
+                        </q-td>
+                    </template>
+                </q-table>
 
                 <div v-else-if="showTable" class="q-gutter-md">
                     <q-card v-for="diary in paginatedCards" :key="diary.id!" class="q-pa-md" bordered>
@@ -58,6 +65,7 @@ import { onMounted } from 'vue';
 import { useSelectionFrequencyPage } from './SelectionFrequencyPage';
 import './SelectionFrequencyPage.scss';
 import { useRouter } from 'vue-router';
+import type { DiaryGrade } from 'src/types/DiaryGrade';
 
 const router = useRouter();
 
@@ -75,13 +83,29 @@ const {
     onSearch,
     onCreate,
     clearFilters,
-    loadSelectOptions
+    loadSelectOptions,
+    getDiaryActions,
+    getActionIcon
 } = useSelectionFrequencyPage();
 
 async function createDiary() {
     const created = await onCreate();
     if (created) {
         await router.push('/frequency');
+    }
+}
+
+function handleDiaryAction(action: string, diary: DiaryGrade) {
+    console.log(diary);
+
+    if (action === 'Editar') {
+        // Implementar lógica de edição
+    } else if (action === 'Ver') {
+        // Implementar lógica de visualização
+    } else if (action === 'Imprimir') {
+        // Implementar lógica de impressão
+    } else if (action === 'Observação') {
+        // Implementar modal ou drawer
     }
 }
 

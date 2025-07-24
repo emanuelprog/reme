@@ -90,7 +90,24 @@ const columns: QTableColumn[] = [
   { name: 'group', label: 'Grupo', field: row => row.group?.description, align: 'left', sortable: true },
   { name: 'discipline', label: 'Disciplina', field: row => row.discipline?.description, align: 'left', sortable: true },
   { name: 'grade', label: 'Turma', field: row => row.grade?.description, align: 'left', sortable: true },
-  { name: 'bimester', label: 'Bimestre', field: row => row.bimesterPeriod?.bimester, align: 'left', sortable: true }
+  { name: 'bimester', label: 'Bimestre', field: row => row.bimesterPeriod?.bimester, align: 'left', sortable: true },
+  {
+    name: 'status',
+    label: 'Situação',
+    field: row => {
+      if (row.diaryStatusId === 1) return 'Em Andamento'
+      if (row.diaryStatusId === 2) return 'Enviado'
+      return 'Finalizado'
+    },
+    align: 'left',
+    sortable: true
+  },
+  {
+    name: 'actions',
+    label: 'Ações',
+    field: row => row,
+    align: 'left'
+  }
 ];
 
 const filters = ref<FilterModel>({ ...initialFilters });
@@ -113,6 +130,28 @@ const teacherStore = useTeacherStore();
 
 const validationContext = ref<'search' | 'create' | null>(null);
 
+function getDiaryActions(diary: DiaryGrade) {
+  if (diary.diaryStatusId === 1) {
+    return ['Editar', 'Imprimir', 'Observação']
+  }
+  return ['Ver', 'Imprimir', 'Observação']
+}
+
+function getActionIcon(action: string) {
+  switch (action) {
+    case 'Editar':
+      return 'edit'
+    case 'Ver':
+      return 'visibility'
+    case 'Imprimir':
+      return 'print'
+    case 'Observação':
+      return 'comment'
+    default:
+      return 'help'
+  }
+}
+
 function isFieldRequired(fieldKey: string): boolean {
   if (validationContext.value === 'search') {
     return fieldKey === 'school';
@@ -124,6 +163,8 @@ function isFieldRequired(fieldKey: string): boolean {
 }
 
 async function loadSelectOptions() {
+  showTable.value = false;
+
   const [teachingTypeRes, schoolRes] = await Promise.all([
     fetchTeachingType(),
     fetchSchools()
@@ -410,6 +451,8 @@ export function useSelectionFrequencyPage() {
     onSearch,
     onCreate,
     clearFilters,
-    loadSelectOptions
+    loadSelectOptions,
+    getDiaryActions,
+    getActionIcon
   };
 }
