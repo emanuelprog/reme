@@ -1,6 +1,6 @@
 import { boot } from 'quasar/wrappers';
-import keycloak from 'src/services/auth/keycloakService';
-import { initTeacherData } from 'src/services/auth/authService';
+import keycloak from 'src/services/keycloakService';
+import { initTeacherData } from 'src/services/authService';
 import { api } from 'boot/axios';
 
 export default boot(async ({ router }) => {

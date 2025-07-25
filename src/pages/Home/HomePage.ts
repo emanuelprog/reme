@@ -1,6 +1,6 @@
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
-import { useTeachers } from 'src/services/auth/authService';
+import { useTeachers } from 'src/services/authService';
 import type { TeacherOption } from 'src/types/Teacher';
 import { useTeacherStore } from 'src/stores/teacherStore';
 

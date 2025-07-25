@@ -17,7 +17,7 @@
               </q-item-section>
             </q-item>
             <q-separator />
-            <q-item clickable to="/config" exact class="q-dark-fix">
+            <q-item clickable @click="showConfig = true" exact class="q-dark-fix">
               <q-item-section avatar><q-icon name="settings" /></q-item-section>
               <q-item-section>Configurações</q-item-section>
             </q-item>
@@ -33,19 +33,46 @@
       </q-btn>
     </q-toolbar>
   </q-header>
+
+  <q-dialog v-model="showConfig" persistent>
+    <q-card style="min-width: 400px; max-width: 90vw;">
+      <q-card-section>
+        <div class="text-h6">Configurações do Sistema</div>
+      </q-card-section>
+
+      <q-separator />
+
+      <q-card-section>
+        <div class="text-h6">Preferências</div>
+        <q-toggle v-model="tempDarkMode" label="Modo escuro" color="green" />
+      </q-card-section>
+
+      <q-separator />
+
+      <q-card-actions align="right">
+        <q-btn flat label="Cancelar" v-close-popup />
+        <q-btn label="Salvar" color="green" @click="saveSettings" />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
 </template>
 
 <script setup lang="ts">
-import { useQuasar } from 'quasar';
-import { computed } from 'vue';
-import keycloak from 'src/services/auth/keycloakService';
+import { ref, computed } from 'vue'
+import { useQuasar } from 'quasar'
+import keycloak from 'src/services/keycloakService'
+import { useConfigPage } from 'src/pages/Config/ConfigPage'
 
-const $q = useQuasar();
+const $q = useQuasar()
+const showConfig = ref(false)
+const { tempDarkMode, saveSettings } = useConfigPage()
 
-const userName = computed(() => keycloak.tokenParsed?.name + ' ' + keycloak.tokenParsed?.lastName || 'Usuário');
+const userName = computed(() =>
+  keycloak.tokenParsed?.name + ' ' + keycloak.tokenParsed?.lastName || 'Usuário'
+)
 
 function logout() {
-  let seconds = 2;
+  let seconds = 2
   const notif = $q.notify({
     group: false,
     timeout: 0,
@@ -53,17 +80,17 @@ function logout() {
     type: 'info',
     position: 'top-right',
     classes: 'my-notify'
-  });
+  })
 
   const interval = setInterval(() => {
-    seconds--;
+    seconds--
     if (seconds > 0) {
-      notif({ message: `Sua sessão será encerrada em ${seconds}...` });
+      notif({ message: `Sua sessão será encerrada em ${seconds}...` })
     } else {
-      clearInterval(interval);
-      notif();
-      void keycloak.logout({ redirectUri: window.location.origin + '/login' });
+      clearInterval(interval)
+      notif()
+      void keycloak.logout({ redirectUri: window.location.origin + '/login' })
     }
-  }, 1000);
+  }, 1000)
 }
 </script>

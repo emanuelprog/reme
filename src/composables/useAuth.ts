@@ -1,5 +1,5 @@
 import { reactive, readonly } from 'vue';
-import keycloak from 'src/services/auth/keycloakService';
+import keycloak from 'src/services/keycloakService';
 
 const state = reactive({
   authenticated: false,

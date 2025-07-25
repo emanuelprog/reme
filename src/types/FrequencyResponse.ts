@@ -2,22 +2,12 @@ import type { DiaryGrade } from "./DiaryGrade"
 import type { StudentFrequency } from "./StudentFrequency"
 
 export type FrequencyResponse = {
-  students: StudentFrequency[]
+  studentsFrequency: StudentFrequency[]
   dateColumns: string[]
+  diaryGrade: DiaryGrade
 }
 
-export type FrequencySavePayload = {
+export type FrequencyRequest = {
+  studentsFrequency: StudentFrequency[]
   diaryGrade: DiaryGrade
-  frequencies: {
-    id: number
-    name: string
-    callNumber: number
-    hasOccurrence: boolean
-    frequencies: {
-      id: number | undefined
-      classTime: string
-      date: string
-      value: string
-    }[]
-  }[]
 }

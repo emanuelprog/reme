@@ -1,4 +1,4 @@
-import keycloak from 'src/services/auth/keycloakService';
+import keycloak from 'src/services/keycloakService';
 
 export function useUnauthorizedPage() {
   function goToLogin() {

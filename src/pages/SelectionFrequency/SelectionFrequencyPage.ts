@@ -1,9 +1,9 @@
 import { ref, computed, watch } from 'vue';
 import { Notify, type QTableColumn } from 'quasar';
-import { fetchDisciplines, fetchGrades, fetchGroups, fetchSchools, fetchShifts, fetchTeachingType, fetchYears } from 'src/services/filters/filtersService';
+import { fetchDisciplines, fetchGrades, fetchGroups, fetchSchools, fetchShifts, fetchTeachingType, fetchYears } from 'src/services/filtersService';
 import type { TeachingType, School, Year, Shift, Group, Discipline, Grade, Bimester } from 'src/types/FilterOption';
 import { useFilterStore } from 'src/stores/filterStore';
-import { fetchDiaryCreationInfo, fetchDiaryGrades } from 'src/services/diary/diaryService';
+import { fetchDiaryCreationInfo, fetchDiaryGrades } from 'src/services/diaryService';
 import type { DiaryGrade } from 'src/types/DiaryGrade';
 import axios from 'axios';
 import { useDiaryGradeStore } from 'src/stores/diaryStore';
@@ -377,6 +377,27 @@ async function onCreate(): Promise<boolean> {
     const { teacherScheduleId, bimesterPeriod } = response.data;
 
     if (!teacherStore.selectedTeacher) return false;
+
+    const existingDiaries = await fetchDiaryGrades();
+
+    if (existingDiaries.data) {
+      const alreadyExists = existingDiaries.data.some((diary: DiaryGrade) =>
+        diary.teacherScheduleId === teacherScheduleId &&
+        String(diary.bimesterPeriod?.id) === String(bimesterPeriod.id) &&
+        String(diary.enrollment) === String(teacherStore.selectedTeacher?.enrollment)
+      );
+
+      if (alreadyExists) {
+        Notify.create({
+          type: 'warning',
+          message: 'Já existe um diário cadastrado com os mesmos dados.',
+          position: 'top-right',
+          timeout: 1500
+        });
+        return false;
+      }
+    }
+
 
     const newDiary: DiaryGrade = {
       id: null,

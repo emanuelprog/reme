@@ -1,7 +1,7 @@
 import { api } from 'src/boot/axios';
 import { useDiaryGradeStore } from 'src/stores/diaryStore';
 import { useFilterStore } from 'src/stores/filterStore';
-import type { FrequencySavePayload } from 'src/types/FrequencyResponse';
+import type { FrequencyRequest } from 'src/types/FrequencyResponse';
 
 const diaryStore = useDiaryGradeStore();
 const filterStore = useFilterStore();
@@ -20,10 +20,11 @@ export async function fetchFrequencies() {
       to: diaryStore.selectedDiaryGrade?.bimesterPeriod?.endDate ?? null
     }
   });
+
   return response.data.data;
 }
 
-export async function saveFrequencies(payload: FrequencySavePayload) {
-  const response = await api.post('/frequencies', payload)
+export async function saveFrequencies(frequencyRequest: FrequencyRequest) {
+  const response = await api.post('/frequencies', frequencyRequest)
   return response.data
 }
