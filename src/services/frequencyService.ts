@@ -1,10 +1,8 @@
 import { api } from 'src/boot/axios';
 import { useDiaryGradeStore } from 'src/stores/diaryStore';
-import { useFilterStore } from 'src/stores/filterStore';
 import type { FrequencyRequest } from 'src/types/FrequencyResponse';
 
 const diaryStore = useDiaryGradeStore();
-const filterStore = useFilterStore();
 
 export async function fetchFrequencies() {
   const response = await api.get('/frequencies', {
@@ -15,7 +13,9 @@ export async function fetchFrequencies() {
       group: diaryStore.selectedDiaryGrade?.group?.description ?? null,
       grade: diaryStore.selectedDiaryGrade?.grade?.description ?? null,
       shift: diaryStore.selectedDiaryGrade?.shift?.description ?? null,
-      year: filterStore.selectedYear?.value ?? null,
+      year: diaryStore.selectedDiaryGrade?.bimesterPeriod?.startDate
+        ? new Date(diaryStore.selectedDiaryGrade.bimesterPeriod.startDate).getFullYear()
+        : null,
       from: diaryStore.selectedDiaryGrade?.bimesterPeriod?.startDate ?? null,
       to: diaryStore.selectedDiaryGrade?.bimesterPeriod?.endDate ?? null
     }

@@ -39,7 +39,7 @@
                                     <q-th></q-th>
                                     <q-th class="text-left text-weight-bold">{{ action.label }}</q-th>
                                     <q-th v-for="col in paginatedDateColumns" :key="col" class="text-center">
-                                        <q-toggle :model-value="action.lockRef.value[col]"
+                                        <q-toggle :model-value="action.lockRef.value[col]" :disable="isReadOnly"
                                             @update:model-value="(val) => action.handler(col, val)" dense
                                             :color="action.lockRef.value[col] ? action.color : ''" />
                                     </q-th>
@@ -55,7 +55,7 @@
                                     <template v-if="paginatedDateColumns.includes(col.name)">
                                         <q-select v-model="props.row.frequencies[col.name].value"
                                             :options="attendanceOptions" filled dense emit-value map-options
-                                            class="frequency-cell" :disable="!(
+                                            class="frequency-cell" :disable="isReadOnly || !(
                                                 props.row.editableFrequencies[col.name]?.editable &&
                                                 !props.row.editableFrequencies[col.name]?.observation
                                             ) || props.row.frequencies[col.name]?.value === '-'"
@@ -85,10 +85,10 @@
             </template>
 
             <div class="row q-gutter-md justify-center q-my-lg">
-                <q-btn label="Salvar Frequências" color="positive" icon="save" :disable="!dataLoaded || loading"
-                    @click="onSaveFrequencies" />
-                <q-btn label="Enviar Frequências" color="primary" icon="send" :disable="!dataLoaded || loading"
-                    @click="onSendFrequencies" />
+                <q-btn label="Salvar Frequências" color="positive" icon="save"
+                    :disable="!dataLoaded || loading || isReadOnly" @click="onSaveFrequencies" />
+                <q-btn label="Enviar Frequências" color="primary" icon="send"
+                    :disable="!dataLoaded || loading || isReadOnly" @click="onSendFrequencies" />
             </div>
         </div>
 
@@ -102,8 +102,8 @@
 
                 <q-card-section v-if="selectedStudentObservations.length">
                     <div v-for="(obs, index) in selectedStudentObservations" :key="index" class="q-mb-md">
-                        <div><strong>Início:</strong> {{ formatDate(obs.start) }}</div>
-                        <div><strong>Fim:</strong> {{ formatDate(obs.end) }}</div>
+                        <div><strong>Início:</strong> {{ formatDateString(obs.start) }}</div>
+                        <div><strong>Fim:</strong> {{ formatDateString(obs.end) }}</div>
                         <div><strong>Observação:</strong> {{ obs.text }}</div>
                         <q-separator class="q-my-sm" v-if="index < selectedStudentObservations.length - 1" />
                     </div>
@@ -138,12 +138,13 @@ const {
     toggleActions,
     onManualFrequencyChange,
     openObservationModal,
-    formatDate,
+    formatDateString,
     showObservationModal,
     selectedStudentObservations,
     dataLoaded,
     onSaveFrequencies,
-    onSendFrequencies
+    onSendFrequencies,
+    isReadOnly
 } = useFrequencyPage()
 
 onMounted(async () => {

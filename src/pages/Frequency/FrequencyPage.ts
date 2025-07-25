@@ -4,8 +4,9 @@ import { fetchFrequencies, saveFrequencies } from 'src/services/frequencyService
 import { useRouter } from 'vue-router'
 import type { StudentFrequency } from 'src/types/StudentFrequency'
 import type { FrequencyRequest, FrequencyResponse } from 'src/types/FrequencyResponse'
-import { formatDateLabel, formatDate } from 'src/util/DateUtil'
+import { formatDateLabel, formatDateString, formatDate } from 'src/util/DateUtil'
 import { useDiaryGradeStore } from 'src/stores/diaryStore'
+import { findHistoriesByStudent } from 'src/services/historyService'
 
 const attendanceOptions = ['F', '.']
 const lockRemoteClass = ref<Record<string, boolean>>({})
@@ -13,6 +14,12 @@ const lockLack = ref<Record<string, boolean>>({})
 const lockPresence = ref<Record<string, boolean>>({})
 
 export function useFrequencyPage() {
+
+    const isReadOnly = computed(() => {
+        const status = diaryStore.selectedDiaryGrade?.diaryStatusId
+        return status === 2 || status === 3 || status === 4
+    })
+
     const loading = ref(false)
     const students = ref<StudentFrequency[]>([])
     const columns = ref<QTableColumn<StudentFrequency>[]>([])
@@ -72,6 +79,9 @@ export function useFrequencyPage() {
             color: 'positive'
         }
     ]
+
+    const showObservationModal = ref(false)
+    const selectedStudentObservations = ref<{ start: string; end: string; text: string }[]>([])
 
     function clearOtherToggles(currentRef: typeof lockRemoteClass, col: string) {
         [lockRemoteClass, lockLack, lockPresence].forEach((ref) => {
@@ -158,18 +168,29 @@ export function useFrequencyPage() {
             dataLoaded.value = true
             syncTogglesWithFrequencies()
         } catch (err) {
+            notify('negative', 'Erro ao carregar dados da frequência.')
             console.error('Erro ao carregar dados da frequência:', err)
         } finally {
             loading.value = false
         }
     }
 
-    const showObservationModal = ref(false)
-    const selectedStudentObservations = ref<{ start: string; end: string; text: string }[]>([])
-
-    function openObservationModal(studentId: number) {
+    async function openObservationModal(studentId: number) {
         const student = students.value.find(s => s.id === studentId)
         if (!student) return
+
+        try {
+            const response = await findHistoriesByStudent(studentId)
+            selectedStudentObservations.value = response.map(h => ({
+                start: formatDate(h.startDate),
+                end: formatDate(h.endDate),
+                text: h.description
+            }))
+        } catch (error) {
+            console.error('Erro ao buscar histórico do aluno:', error)
+            selectedStudentObservations.value = []
+        }
+
         selectedStudentObservations.value = []
         showObservationModal.value = true
     }
@@ -269,11 +290,12 @@ export function useFrequencyPage() {
         toggleActions,
         onManualFrequencyChange,
         openObservationModal,
-        formatDate,
+        formatDateString,
         showObservationModal,
         selectedStudentObservations,
         dataLoaded,
         onSaveFrequencies,
-        onSendFrequencies
+        onSendFrequencies,
+        isReadOnly
     }
 }

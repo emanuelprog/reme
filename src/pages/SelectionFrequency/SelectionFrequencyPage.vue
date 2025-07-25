@@ -66,8 +66,10 @@ import { useSelectionFrequencyPage } from './SelectionFrequencyPage';
 import './SelectionFrequencyPage.scss';
 import { useRouter } from 'vue-router';
 import type { DiaryGrade } from 'src/types/DiaryGrade';
+import { useDiaryGradeStore } from 'src/stores/diaryStore';
 
 const router = useRouter();
+const diaryStore = useDiaryGradeStore();
 
 const {
     filters,
@@ -95,13 +97,13 @@ async function createDiary() {
     }
 }
 
-function handleDiaryAction(action: string, diary: DiaryGrade) {
-    console.log(diary);
-
+async function handleDiaryAction(action: string, diary: DiaryGrade) {
     if (action === 'Editar') {
-        // Implementar lógica de edição
+        diaryStore.setSelectedDiaryGrade(diary);
+        await router.push('/frequency');
     } else if (action === 'Ver') {
-        // Implementar lógica de visualização
+        diaryStore.setSelectedDiaryGrade(diary);
+        await router.push('/frequency');
     } else if (action === 'Imprimir') {
         // Implementar lógica de impressão
     } else if (action === 'Observação') {
