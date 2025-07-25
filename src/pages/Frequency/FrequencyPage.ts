@@ -4,7 +4,8 @@ import { fetchFrequencies, saveFrequencies } from 'src/services/frequencyService
 import { useRouter } from 'vue-router'
 import type { StudentFrequency } from 'src/types/StudentFrequency'
 import type { FrequencyRequest, FrequencyResponse } from 'src/types/FrequencyResponse'
-import { formatDateLabel, formatDateString, formatDate } from 'src/util/DateUtil'
+import type { HistoryFrequency } from 'src/types/History'
+import { formatDateLabel, formatDate } from 'src/util/DateUtil'
 import { useDiaryGradeStore } from 'src/stores/diaryStore'
 import { findHistoriesByStudent } from 'src/services/historyService'
 
@@ -81,7 +82,7 @@ export function useFrequencyPage() {
     ]
 
     const showObservationModal = ref(false)
-    const selectedStudentObservations = ref<{ start: string; end: string; text: string }[]>([])
+    const selectedStudentObservations = ref<HistoryFrequency[]>([])
 
     function clearOtherToggles(currentRef: typeof lockRemoteClass, col: string) {
         [lockRemoteClass, lockLack, lockPresence].forEach((ref) => {
@@ -181,17 +182,13 @@ export function useFrequencyPage() {
 
         try {
             const response = await findHistoriesByStudent(studentId)
-            selectedStudentObservations.value = response.map(h => ({
-                start: formatDate(h.startDate),
-                end: formatDate(h.endDate),
-                text: h.description
-            }))
+
+            selectedStudentObservations.value = response.data
         } catch (error) {
             console.error('Erro ao buscar histórico do aluno:', error)
             selectedStudentObservations.value = []
         }
 
-        selectedStudentObservations.value = []
         showObservationModal.value = true
     }
 
@@ -290,7 +287,7 @@ export function useFrequencyPage() {
         toggleActions,
         onManualFrequencyChange,
         openObservationModal,
-        formatDateString,
+        formatDate,
         showObservationModal,
         selectedStudentObservations,
         dataLoaded,

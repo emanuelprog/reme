@@ -1,4 +1,4 @@
-export type History = {
+export type HistoryFrequency = {
     id: number
     changeUser: string
     description: string

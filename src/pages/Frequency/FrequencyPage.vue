@@ -102,9 +102,9 @@
 
                 <q-card-section v-if="selectedStudentObservations.length">
                     <div v-for="(obs, index) in selectedStudentObservations" :key="index" class="q-mb-md">
-                        <div><strong>Início:</strong> {{ formatDateString(obs.start) }}</div>
-                        <div><strong>Fim:</strong> {{ formatDateString(obs.end) }}</div>
-                        <div><strong>Observação:</strong> {{ obs.text }}</div>
+                        <div><strong>Início:</strong> {{ formatDate(obs.startDate) }}</div>
+                        <div><strong>Fim:</strong> {{ formatDate(obs.endDate) }}</div>
+                        <div><strong>Observação:</strong> {{ obs.description }}</div>
                         <q-separator class="q-my-sm" v-if="index < selectedStudentObservations.length - 1" />
                     </div>
                 </q-card-section>
@@ -138,7 +138,7 @@ const {
     toggleActions,
     onManualFrequencyChange,
     openObservationModal,
-    formatDateString,
+    formatDate,
     showObservationModal,
     selectedStudentObservations,
     dataLoaded,

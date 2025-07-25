@@ -9,10 +9,6 @@ export function formatDateLabel(dateKey: string): string {
     return dateKey
 }
 
-export function formatDateString(date: string): string {
-    return new Date(date).toLocaleDateString('pt-BR')
-}
-
 export function formatDate(date: Date): string {
     const d = new Date(date)
     const day = String(d.getDate()).padStart(2, '0')
